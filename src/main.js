@@ -76,11 +76,16 @@ const layerManager = new LayerManager();
 layerManager.addAllTo(modelRoot);
 
 // 用 BASE_URL 處理 GitHub Pages 部署路徑（dev: '/', prod: '/edu-platform/'）
-const REAL_MODEL_URL = `${import.meta.env.BASE_URL}models/brain.glb`;
+const BASE = import.meta.env.BASE_URL;
+const REAL_MODEL_URL    = `${BASE}models/brain.glb`;
+const REAL_SKULL_URL    = `${BASE}models/skull.glb`;
+const REAL_VESSELS_URL  = `${BASE}models/vessels.glb`;
+
+// 共享 Draco loader — 多個 GLB 載入只下載一次 decoder wasm
+const _shared_draco = new DRACOLoader();
+_shared_draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
 
 async function tryLoadRealModel(url) {
-  // Vite dev server SPA-fallbacks unknown URLs to index.html (HTTP 200),
-  // so HEAD-status alone is not enough — also check Content-Type.
   try {
     const head = await fetch(url, { method: 'HEAD' });
     if (!head.ok) return null;
@@ -89,15 +94,26 @@ async function tryLoadRealModel(url) {
   } catch { return null; }
 
   const loader = new GLTFLoader();
-  const draco = new DRACOLoader();
-  draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
-  loader.setDRACOLoader(draco);
+  loader.setDRACOLoader(_shared_draco);
+  // 加 15s timeout，避免單一 GLB 卡住整個 init flow
   return new Promise((resolve) => {
+    let done = false;
+    const t = setTimeout(() => {
+      if (done) return;
+      done = true;
+      console.warn(`[edu-platform] timeout loading ${url}, falling back`);
+      resolve(null);
+    }, 15000);
     loader.load(
       url,
-      (gltf) => resolve(gltf.scene),
+      (gltf) => { if (!done) { done = true; clearTimeout(t); resolve(gltf.scene); } },
       undefined,
-      (err) => { console.warn('[edu-platform] real model load failed, falling back:', err); resolve(null); }
+      (err) => {
+        if (done) return;
+        done = true; clearTimeout(t);
+        console.warn(`[edu-platform] failed loading ${url}:`, err?.message || err);
+        resolve(null);
+      }
     );
   });
 }
@@ -115,27 +131,34 @@ async function loadAnatomy() {
     const box = new THREE.Box3().setFromObject(real);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3()).length();
+    let scaleFactor = 1;
     if (size > 0) {
       const targetSize = 1.4;
-      const scaleFactor = targetSize / size;
+      scaleFactor = targetSize / size;
       real.scale.setScalar(scaleFactor);
-      // scaled bbox 中心會跑到 scale × center 的世界座標，因此把 root 位置設為 -scaleFactor × center
-      real.position.copy(center.multiplyScalar(-scaleFactor));
+      real.position.copy(center.clone().multiplyScalar(-scaleFactor));
     }
-    // 依 mesh 名稱關鍵字分區，套上對應顏色
     colorizeBrain(real, SYSTEM_COLORS);
-    // 依 mesh 名稱關鍵字 tag 對應 structureId（多重 tag），讓點選/通路高亮能命中真實 mesh
     tagBrainMeshes(real);
     layerManager.registerMesh('nerve', real);
     console.info('[edu-platform] loaded real anatomy:',
       '#meshes=', countMeshes(real),
       'origSize=', size.toFixed(3));
+
+    // ── 對齊載入其它 Z-Anatomy 圖層（用同一 scale 與 center，這樣它們在原始
+    //    解剖空間裡的位置關係會被保留）
+    await loadAlignedLayer(REAL_SKULL_URL,   'bone',   { scaleFactor, center, color: 0xece1c6, opacity: 0.92 });
+    await loadAlignedLayer(REAL_VESSELS_URL, 'vessel', { scaleFactor, center, color: 0xd23a3a, opacity: 1 });
   } else {
     layerManager.registerMesh('skin',   createSkinShell());
     layerManager.registerMesh('muscle', createMuscleShell());
     layerManager.registerMesh('bone',   createBoneShell());
     layerManager.registerMesh('vessel', createVesselTubes());
     layerManager.registerMesh('nerve',  createPlaceholderBrain());
+  }
+  // 即使有真實腦：Z-Anatomy 沒有 skin 模型，保留 procedural 皮膚殼當示意
+  if (real) {
+    layerManager.registerMesh('skin', createSkinShell());
   }
 
   // Structure markers (deep nuclei + cortical lobes in placeholder mode).
@@ -175,6 +198,35 @@ async function loadAnatomy() {
 
   fitCameraToObject(modelRoot);
   hideLoading();
+}
+
+async function loadAlignedLayer(url, layerId, { scaleFactor, center, color, opacity = 1 }) {
+  const obj = await tryLoadRealModel(url);
+  if (!obj) return null;
+  obj.scale.setScalar(scaleFactor);
+  obj.position.copy(center.clone().multiplyScalar(-scaleFactor));
+  // 統一染色（取代 GLB 內可能殘存的 baseColor texture），方便對應 layer 識別
+  obj.traverse(o => {
+    if (!o.isMesh || !o.material) return;
+    const cloneOne = (m) => {
+      const c = m.clone();
+      if (color !== undefined) c.color.setHex(color);
+      if (c.map) c.map = null;
+      if (c.emissiveMap) c.emissiveMap = null;
+      if (c.emissive) c.emissive.setHex(0x000000);
+      c.side = 2;                  // DoubleSide：剖面切開不空心
+      c.transparent = opacity < 1;
+      c.opacity = opacity;
+      c.needsUpdate = true;
+      return c;
+    };
+    o.material = Array.isArray(o.material)
+      ? o.material.map(cloneOne)
+      : cloneOne(o.material);
+  });
+  layerManager.registerMesh(layerId, obj);
+  console.info(`[edu-platform] loaded ${layerId} layer:`, url, '#meshes=', countMeshes(obj));
+  return obj;
 }
 
 function countMeshes(root) {
