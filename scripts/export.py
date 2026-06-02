@@ -17,10 +17,12 @@ import bpy
 # 每個 export job：(collection_name, output_filename, decimate_ratio)
 # 拆成多個檔的好處：brain.glb 一定載入；heart.glb 只在通路啟動時 lazy-load。
 JOBS = [
-    ("Brain",                 "brain.glb",  0.5),
-    ("Heart",                 "heart.glb",  0.5),
-    ("Cranium",               "skull.glb",  0.35),   # 顱骨（含下顎），mesh 多所以多 decimate
-    ("Cardiovascular system", "vessels.glb", 0.5),   # 全身血管系統（無細分頭部）
+    ("Brain",                 "brain.glb",   0.5),
+    ("Heart",                 "heart.glb",   0.5),
+    ("Cranium",               "skull.glb",   0.35),   # 顱骨（含下顎），mesh 多所以多 decimate
+    ("Cardiovascular system", "vessels.glb", 0.5),    # 全身血管系統（無細分頭部）
+    ("Spinal cord",           "spinal.glb",  0.5),    # 脊髓本體（Z-Anatomy 只有約 2 mesh）
+    ("Muscles of head",       "muscles.glb", 0.45),   # 頭部肌肉，替代 muscle placeholder
 ]
 
 MIN_POLYS_TO_DECIMATE = 200

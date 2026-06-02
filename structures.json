@@ -3,223 +3,179 @@
     "id": "frontal-lobe",
     "name_zh": "額葉",
     "name_la": "Lobus frontalis",
-    "function_zh": "大腦最前方的區域，主管隨意動作的計畫與執行、語言產生（Broca 區），以及決策、情緒調節等高階行為控制。",
+    "function_zh": "大腦最前方的區域，佔大腦皮質約 1/3。負責隨意動作的計畫與執行（運動皮質）、語言產生（左側 Broca 區，受損會造成表達型失語）、決策、衝動抑制、工作記憶與情緒調節。額葉是「人格的所在地」——19 世紀鐵棒貫穿大腦的 Phineas Gage 在意外後智力保留，但脾氣與判斷力完全改變，是神經科學的經典案例。",
     "system": "frontal",
-    "markerPosition": [
-      0.0,
-      0.22,
-      0.28
-    ],
+    "markerPosition": [0.0, 0.22, 0.28],
     "meshName": null
   },
   {
     "id": "prefrontal-cortex",
     "name_zh": "前額葉",
     "name_la": "Cortex praefrontalis",
-    "function_zh": "額葉最前端，負責計畫、衝動抑制、工作記憶、判斷與社交行為。發展最晚成熟，是「執行功能」的核心。",
+    "function_zh": "額葉最前端，是「執行功能」的核心：計畫、抽象推理、衝動抑制、工作記憶、心智理論、社交判斷。前額葉皮質的髓鞘化要到 25 歲左右才完全成熟，這是為什麼青少年容易做高風險決策。前額葉與邊緣系統（特別是杏仁核）的連線負責「情緒煞車」——前額葉功能不佳時，情緒控制能力下降。",
     "system": "frontal",
-    "markerPosition": [
-      0.0,
-      0.16,
-      0.34
-    ],
+    "markerPosition": [0.0, 0.16, 0.34],
     "meshName": null
   },
   {
     "id": "parietal-lobe",
     "name_zh": "頂葉",
     "name_la": "Lobus parietalis",
-    "function_zh": "整合來自皮膚、肌肉與感官的訊息，處理觸覺、本體感（身體位置感）、空間方位與手眼協調。",
+    "function_zh": "位於額葉後方、枕葉前方。整合來自皮膚、肌肉、關節的感覺訊息（後中央回是初級體感皮質），形成觸覺、本體感（身體位置感）、空間方位與手眼協調。右側頂葉受傷會造成「半側空間忽略」（半邊世界視而不見）；左頂葉的角回受損與 Gerstmann 症候群（手指失認、左右失認、書寫失能、計算失能）相關。",
     "system": "parietal",
-    "markerPosition": [
-      0.0,
-      0.31,
-      -0.25
-    ],
+    "markerPosition": [0.0, 0.31, -0.25],
     "meshName": null
   },
   {
     "id": "temporal-lobe",
     "name_zh": "顳葉",
     "name_la": "Lobus temporalis",
-    "function_zh": "位於大腦兩側，負責聽覺處理、語言理解（Wernicke 區）、面孔與物體辨識，並參與長期記憶。",
+    "function_zh": "位於外側溝下方，負責聽覺處理（Heschl 回是初級聽皮質）、語言理解（左側 Wernicke 區，受損會造成流利但無意義的言語）、面孔辨識（梭狀回面孔區 FFA）、物體辨識與情景記憶。顳葉內側包含海馬迴與杏仁核——切除兩側顳葉內側的著名病人 H.M. 失去形成新長期記憶的能力，但智力保留，是記憶神經科學的基石。",
     "system": "temporal",
-    "markerPosition": [
-      0.32,
-      -0.06,
-      0.0
-    ],
+    "markerPosition": [0.32, -0.06, 0.0],
     "meshName": null
   },
   {
     "id": "occipital-lobe",
     "name_zh": "枕葉",
     "name_la": "Lobus occipitalis",
-    "function_zh": "大腦最後方的葉，主要負責視覺訊息的初步處理；視網膜傳來的訊號在此被解讀為形狀、顏色與動態。",
+    "function_zh": "大腦最後方，幾乎完全專門處理視覺。初級視覺皮質（V1，鈣狀裂周圍）接收外側膝狀體的訊號，依空間位置對應（視網膜對應地圖）。V1 之後分成兩條通路：背側「Where/How」通路（往頂葉，處理空間位置與動作引導）、腹側「What」通路（往顳葉，處理物體辨識）。雙側枕葉受損會造成皮質性失明——眼睛正常但大腦無法處理視覺。",
     "system": "occipital",
-    "markerPosition": [
-      0.0,
-      -0.02,
-      -0.43
-    ],
+    "markerPosition": [0.0, -0.02, -0.43],
     "meshName": null
   },
+
   {
     "id": "amygdala",
     "name_zh": "杏仁核",
     "name_la": "Corpus amygdaloideum",
-    "function_zh": "邊緣系統的核心節點，偵測威脅、產生恐懼與情緒記憶。被啟動時會快速觸發戰、逃、僵的反應鏈。",
+    "function_zh": "顳葉內側的杏仁狀核團，是情緒處理（特別是恐懼）的核心。負責偵測威脅、產生快速「戰／逃／僵」反應、把情緒色彩附加到記憶上（為什麼情緒事件記得特別清楚）。杏仁核在意識層次之前就能反應——這是為什麼你會「先嚇到再認出原來只是一條繩子」。雙側杏仁核損傷（如 Urbach-Wiethe 症）的病人失去恐懼感、不會做風險迴避。",
     "system": "limbic",
-    "markerPosition": [
-      0.12,
-      -0.04,
-      0.09
-    ],
+    "markerPosition": [0.12, -0.04, 0.09],
     "meshName": null
   },
   {
     "id": "hippocampus",
     "name_zh": "海馬迴",
     "name_la": "Hippocampus",
-    "function_zh": "把短期經驗轉成可儲存的長期記憶，也負責空間導航與情境記憶。海馬受損會造成新記憶無法形成。",
+    "function_zh": "顳葉內側的捲曲結構，得名於希臘文「海馬」。負責把短期經驗轉成長期外顯記憶（情景記憶）、空間導航（含著名的「位置細胞」place cells）、把記憶與情境連結。阿茲海默症最早受損的就是海馬，所以初期症狀是新記憶形成困難。倫敦計程車司機需要記住整個城市的街道——研究發現他們的後側海馬比一般人大。",
     "system": "limbic",
-    "markerPosition": [
-      0.13,
-      -0.04,
-      0.01
-    ],
+    "markerPosition": [0.13, -0.04, 0.01],
     "meshName": null
   },
   {
     "id": "hypothalamus",
     "name_zh": "下視丘",
     "name_la": "Hypothalamus",
-    "function_zh": "維持身體恆定（體溫、飢渴、睡眠、性慾），並透過腦垂體控制荷爾蒙；是神經與內分泌系統的橋樑。",
+    "function_zh": "視丘下方的小結構（只有杏仁大小），卻管理生存最基本的恆定（homeostasis）：體溫、飢渴、睡眠—清醒、性慾、晝夜節律。下視丘透過腦垂體分泌荷爾蒙（神經—內分泌橋樑），影響全身。它也是壓力反應的起點：壓力下啟動下視丘—腦垂體—腎上腺軸（HPA axis），釋放皮質醇。",
     "system": "limbic",
-    "markerPosition": [
-      0.0,
-      -0.03,
-      0.11
-    ],
+    "markerPosition": [0.0, -0.03, 0.11],
     "meshName": null
   },
   {
     "id": "thalamus",
     "name_zh": "視丘",
     "name_la": "Thalamus",
-    "function_zh": "感覺與運動訊息的中繼站；除了嗅覺以外，幾乎所有感覺通路在送往大腦皮質之前都會先經過視丘。",
+    "function_zh": "中腦上方的雙側核團，是大腦的「中繼總機」。除了嗅覺以外，所有感覺通路（視覺、聽覺、體感、味覺）都會先經過視丘才到大腦皮質；運動指令與意識覺察也由視丘協調。視丘有許多次核：外側膝狀體中繼視覺、內側膝狀體中繼聽覺、腹後核中繼體感。視丘損傷可能造成失去意識、感覺異常或丘腦痛症候群。",
     "system": "limbic",
-    "markerPosition": [
-      0.06,
-      0.03,
-      0.0
-    ],
+    "markerPosition": [0.06, 0.03, 0.0],
     "meshName": null
   },
+  {
+    "id": "nucleus-accumbens",
+    "name_zh": "伏隔核",
+    "name_la": "Nucleus accumbens",
+    "function_zh": "腹側紋狀體的一部分，是腦的「獎勵中心」。多巴胺從中腦腹側被蓋區（VTA）投射至此，編碼「比預期更好」的訊號（獎勵預測誤差），驅動學習與動機。所有成癮性物質（古柯鹼、酒精、尼古丁…）都會異常激活伏隔核的多巴胺釋放。重度憂鬱症常伴隨伏隔核活性降低——失去動機與愉悅感（無快樂感）。",
+    "system": "limbic",
+    "markerPosition": [0.04, -0.08, 0.18],
+    "meshName": null
+  },
+
   {
     "id": "midbrain",
     "name_zh": "中腦",
     "name_la": "Mesencephalon",
-    "function_zh": "腦幹最上段，連接前腦與後腦。負責眼動、聽覺反射、體溫調節，內含導水管周圍灰質（PAG）。",
+    "function_zh": "腦幹最上段，連接前腦與後腦。前部（大腦腳）有運動纖維下行；上四疊體控制眼動反射、下四疊體中繼聽覺。中腦深處有兩個重要的多巴胺核團：黑質（Substantia nigra，運動相關，巴金森氏症此處退化）、腹側被蓋區（VTA，獎勵相關）。導水管周圍灰質（PAG）也在中腦，是疼痛調節與防禦反應的關鍵。",
     "system": "brainstem",
-    "markerPosition": [
-      0.0,
-      -0.05,
-      0.01
-    ],
+    "markerPosition": [0.0, -0.05, 0.01],
     "meshName": null
   },
   {
     "id": "pag",
     "name_zh": "導水管周圍灰質（PAG）",
     "name_la": "Substantia grisea centralis",
-    "function_zh": "位於中腦深部的小核，整合對威脅與疼痛的內臟與行為反應；是恐懼通路觸發凍結、心率與呼吸變化的關鍵節點。",
+    "function_zh": "圍繞中腦導水管的灰質柱，是恐懼／防禦反應與疼痛調節的整合中心。腹外側 PAG 觸發「凍結」、外側 PAG 觸發「戰／逃」。PAG 也是中樞痛覺抑制系統的起點——透過下行通路降低脊髓的痛覺傳入，這是嗎啡與內生鴉肽鎮痛的主要作用點。電刺激 PAG 可以在不需麻醉下進行手術。",
     "system": "brainstem",
-    "markerPosition": [
-      0.0,
-      -0.05,
-      -0.02
-    ],
+    "markerPosition": [0.0, -0.05, -0.02],
     "meshName": null
   },
   {
     "id": "pons",
     "name_zh": "橋腦",
     "name_la": "Pons",
-    "function_zh": "腦幹中段，連接大腦與小腦。調節呼吸節奏、面部感覺與動作、聽覺，並參與睡眠週期切換。",
+    "function_zh": "腦幹中段，字面意思是「橋」——大腦皮質與小腦之間的訊息橋樑。內含調節呼吸節奏的核（橋腦呼吸群）、控制面部感覺與表情的三叉神經與面神經核、連結平衡與聽覺的前庭蝸神經核。橋腦也是睡眠—清醒切換的關鍵：藍斑核（locus coeruleus）影響覺醒與注意力，腦橋網狀結構與 REM 睡眠相關。",
     "system": "brainstem",
-    "markerPosition": [
-      0.0,
-      -0.15,
-      0.0
-    ],
+    "markerPosition": [0.0, -0.15, 0.0],
     "meshName": null
   },
   {
     "id": "medulla",
     "name_zh": "延腦",
     "name_la": "Medulla oblongata",
-    "function_zh": "腦幹最下段，控制最基本的生命功能：心跳、血壓、呼吸、吞嚥與嘔吐反射。受損常導致致命結果。",
+    "function_zh": "腦幹最下段，連接脊髓。掌管生命最基本的自動功能：心跳（孤立束核與疑核控制副交感心率）、血壓、呼吸（背側／腹側呼吸群）、吞嚥、咳嗽、嘔吐反射。延腦的「死亡三聯徵」（呼吸停止、低血壓、心跳停止）是腦幹死亡的判定標準。延腦下端是運動纖維交叉處（錐體交叉），這是為什麼左腦控制右半身。",
     "system": "brainstem",
-    "markerPosition": [
-      0.0,
-      -0.3,
-      -0.06
-    ],
+    "markerPosition": [0.0, -0.3, -0.06],
     "meshName": null
   },
+
   {
     "id": "cerebellum",
     "name_zh": "小腦",
     "name_la": "Cerebellum",
-    "function_zh": "協調隨意動作、維持平衡、調節肌肉張力與動作學習；近年也被發現參與部分認知與情緒功能。",
+    "function_zh": "位於大腦後下方，重量約佔腦的 10%，但含有腦中超過一半的神經元。傳統認為負責動作協調、平衡與姿勢，但近年研究發現小腦也參與注意力、語言、情緒與動作學習。小腦損傷會造成共濟失調（協調障礙）——走路像喝醉酒、動作分解（指鼻測試異常）、構音障礙。小腦的學習機制是運動技能（騎腳踏車、彈鋼琴）變成「肌肉記憶」的關鍵。",
     "system": "cerebellum",
-    "markerPosition": [
-      0.0,
-      -0.2,
-      -0.2
-    ],
+    "markerPosition": [0.0, -0.2, -0.2],
     "meshName": null
   },
+
   {
     "id": "spinal-cord",
     "name_zh": "脊髓",
     "name_la": "Medulla spinalis",
-    "function_zh": "中樞神經系統延伸至軀幹的部分，傳遞大腦與身體之間的訊息，並負責基本的反射動作（如膝跳反射）。",
+    "function_zh": "中樞神經系統的延伸，從延腦下端進入脊椎骨保護的椎管，分頸／胸／腰／薦／尾五段，發出 31 對脊神經。雙重角色：上行通路傳遞感覺到腦（背柱—內側丘系傳精細觸覺、脊髓視丘束傳痛溫覺）、下行通路傳運動指令到肌肉（皮質脊髓束）。脊髓也獨立執行反射（如膝跳反射、避痛反射），不需要大腦參與。",
     "system": "spinal",
-    "markerPosition": [
-      0.0,
-      -0.42,
-      -0.06
-    ],
+    "markerPosition": [0.0, -0.42, -0.06],
     "meshName": null
   },
+
   {
     "id": "threat-stimulus",
     "name_zh": "威脅刺激",
     "name_la": "(External stimulus)",
-    "function_zh": "外部威脅事件（如見到捕食者、聽到突然巨響）。並非腦內結構，而是觸發恐懼/壓力反應的輸入訊號；僅在相關通路啟動時顯示。",
+    "function_zh": "外部威脅事件（如看到捕食者、聽到突然巨響、身體受傷的威脅）。並非腦內結構，而是觸發恐懼／壓力反應的輸入訊號。視覺威脅經視丘外側膝狀體與「快速通道」直接投射到杏仁核（不經皮質意識），這是為什麼恐懼反應可以快過理性思考。僅在相關通路啟動時顯示。",
     "system": "stimulus",
     "kind": "external",
-    "markerPosition": [
-      0.0,
-      0.2,
-      0.55
-    ],
+    "markerPosition": [0.0, 0.2, 0.55],
+    "meshName": null
+  },
+  {
+    "id": "pain-stimulus",
+    "name_zh": "傷害刺激",
+    "name_la": "(Nociceptive stimulus)",
+    "function_zh": "外部傷害性刺激（高溫、針刺、組織損傷等），由皮膚與內臟的傷害受器（nociceptor）偵測。傷害受器有三類：Aδ 纖維傳「快痛」（尖銳）、C 纖維傳「慢痛」（鈍痛灼熱）、機械型受器傳機械損傷。傷害訊號上行：經脊髓背角 → 脊髓視丘束 → 視丘 → 頂葉感覺皮質形成痛覺意識；同時投射到前扣帶迴形成痛苦情緒。僅在相關通路啟動時顯示。",
+    "system": "stimulus",
+    "kind": "external",
+    "markerPosition": [0.30, -1.20, 0.10],
     "meshName": null
   },
   {
     "id": "heart",
     "name_zh": "心臟",
     "name_la": "Cor",
-    "function_zh": "恐懼/壓力通路的下游目標器官。腦幹自主神經輸出讓心率與血壓上升，準備肌肉應對威脅。僅在相關通路啟動時顯示。",
+    "function_zh": "恐懼／壓力通路的下游目標器官，也是循環系統的核心。腦幹自主神經輸出讓心率與血壓上升（交感神經）或下降（副交感神經，主要由迷走神經傳遞）。在「戰／逃」反應中，腎上腺素讓心跳加速、心肌收縮力增強，把含氧血快速送到肌肉。心率變異性（HRV）反映自主神經平衡，是壓力與情緒調節的生理指標。",
     "system": "organ",
     "kind": "organ",
-    "markerPosition": [
-      -0.1,
-      -0.85,
-      0.1
-    ],
+    "markerPosition": [-0.1, -0.85, 0.1],
     "meshName": null
   }
 ]

@@ -2,13 +2,25 @@
   {
     "id": "fear-freeze",
     "name": "恐懼 / 凍結反應",
-    "description": "面對威脅時，杏仁核迅速辨識並激發中腦的 PAG，PAG 進一步啟動腦幹的延腦自主神經中樞，輸出訊號讓心率上升、血壓升高、肌肉緊繃，準備戰、逃或凍結的反應。",
+    "description": "面對威脅時，杏仁核迅速辨識並激發中腦的 PAG，PAG 進一步啟動腦幹的延腦自主神經中樞，輸出訊號讓心率上升、血壓升高、肌肉緊繃，準備戰、逃或凍結的反應。整條通路在數百毫秒內就完成，比意識反應更快。",
     "nodes": ["threat-stimulus", "amygdala", "pag", "medulla", "heart"]
   },
   {
     "id": "somatosensory",
     "name": "觸覺感覺通路",
-    "description": "皮膚與肌肉接收到的觸覺、溫覺、痛覺與本體感訊號，沿脊髓上行至視丘中繼，再投射到頂葉的初級體感皮質，形成可被意識覺察的感覺。",
+    "description": "皮膚與肌肉接收到的觸覺、溫覺、痛覺與本體感訊號，沿脊髓上行至視丘中繼，再投射到頂葉的初級體感皮質。觸覺感覺有體感地圖（homunculus）—嘴唇與手指在皮質上佔的空間遠大於背部，反映感覺敏銳度。",
     "nodes": ["spinal-cord", "thalamus", "parietal-lobe"]
+  },
+  {
+    "id": "pain-pathway",
+    "name": "疼痛通路",
+    "description": "傷害受器（皮膚／內臟的痛覺神經末梢）偵測到組織損傷後，訊號經脊髓背角的脊髓視丘束上行至視丘，再投射到頂葉的感覺皮質形成痛覺意識。同時 PAG 可以從上方下行抑制脊髓的痛覺傳入——這是嗎啡與內生鴉肽鎮痛、以及為什麼極度恐懼或運動中常感覺不到痛的機制。",
+    "nodes": ["pain-stimulus", "spinal-cord", "thalamus", "parietal-lobe"]
+  },
+  {
+    "id": "dopamine-reward",
+    "name": "多巴胺獎勵迴路",
+    "description": "中腦腹側被蓋區（VTA，位於中腦深部）的多巴胺神經元在「比預期更好」時放電，投射到伏隔核（Nucleus accumbens）編碼獎勵預測誤差，再經前額葉皮質整合進入決策與動機。所有成癮性物質都會異常放大這條迴路；憂鬱症的「無快樂感」常與此迴路活性降低相關。",
+    "nodes": ["midbrain", "nucleus-accumbens", "prefrontal-cortex"]
   }
 ]

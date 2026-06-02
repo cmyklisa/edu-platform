@@ -83,6 +83,8 @@ const REAL_MODEL_URL    = `${BASE}models/brain.glb`;
 const REAL_SKULL_URL    = `${BASE}models/skull.glb`;
 const REAL_VESSELS_URL  = `${BASE}models/vessels.glb`;
 const REAL_HEART_URL    = `${BASE}models/heart.glb`;
+const REAL_SPINAL_URL   = `${BASE}models/spinal.glb`;
+const REAL_MUSCLES_URL  = `${BASE}models/muscles.glb`;
 
 // 共享 Draco loader — 多個 GLB 載入只下載一次 decoder wasm
 const _shared_draco = new DRACOLoader();
@@ -148,9 +150,11 @@ async function loadAnatomy() {
       '#meshes=', countMeshes(real),
       'origSize=', size.toFixed(3));
 
-    // ── 對齊載入 skull / vessels（同 scale + center）
+    // ── 對齊載入其他 Z-Anatomy 圖層（同 scale + center）
     await loadAlignedLayer(REAL_SKULL_URL,   'bone',   { scaleFactor, center, color: 0xece1c6, opacity: 0.92 });
     await loadAlignedLayer(REAL_VESSELS_URL, 'vessel', { scaleFactor, center, color: 0xff5a4a, opacity: 1 });
+    await loadAlignedLayer(REAL_SPINAL_URL,  'nerve',  { scaleFactor, center, color: 0xf3e08a, opacity: 1 });
+    await loadAlignedLayer(REAL_MUSCLES_URL, 'muscle', { scaleFactor, center, color: 0xc14a40, opacity: 0.95 });
 
     // ── bbox 分兩種：純 brain（給眼球用）vs 含 skull 的（給 skin/muscle 殼用）
     real.updateMatrixWorld(true);
@@ -164,9 +168,12 @@ async function loadAnatomy() {
     window.__brainBbox = brainOnlyBox;  // 純腦，眼球位置依據
     window.__headBbox  = headBox;       // 腦 + 顱骨，skin/muscle 殼依據
 
-    // 對齊的 skin / muscle 殼（包到顱骨外面才合理）
-    layerManager.registerMesh('skin',   createSkinShellAroundBbox(headBox, { buffer: 1.10 }));
-    layerManager.registerMesh('muscle', createMuscleShellAroundBbox(headBox, { buffer: 1.04 }));
+    // 皮膚仍用 procedural shell（Z-Anatomy 沒有 skin 模型）。
+    // 肌肉若有真實 GLB 載入成功，則此處不再加 placeholder（避免雙層）。
+    layerManager.registerMesh('skin', createSkinShellAroundBbox(headBox, { buffer: 1.10 }));
+    if (layerManager.getGroup('muscle').children.length === 0) {
+      layerManager.registerMesh('muscle', createMuscleShellAroundBbox(headBox, { buffer: 1.04 }));
+    }
   } else {
     layerManager.registerMesh('skin',   createSkinShell());
     layerManager.registerMesh('muscle', createMuscleShell());
