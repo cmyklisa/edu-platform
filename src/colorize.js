@@ -85,7 +85,10 @@ export function colorizeBrain(root, systemColors, { fallbackColor = 0xd8cfc0 } =
       if (c.emissive)    { c.emissive.setHex(0x000000); }
       if ('roughness' in c) c.roughness = 0.78;
       if ('metalness' in c) c.metalness = 0.02;
-      // Transparency disabled — opaque meshes render correctly with layer/select dimming
+      // DoubleSide：剖面（clipping plane）切開後內部不會空心
+      c.side = (typeof THREE !== 'undefined' && THREE.DoubleSide)
+        ? THREE.DoubleSide
+        : 2; // THREE.DoubleSide === 2
       c.transparent = false;
       c.opacity = 1;
       c.needsUpdate = true;

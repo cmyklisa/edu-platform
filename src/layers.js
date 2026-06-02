@@ -96,9 +96,10 @@ export class LayerManager {
       if (!child.isMesh) return;
       const mats = Array.isArray(child.material) ? child.material : [child.material];
       const isMarker = !!child.userData.isMarker;
-      const structureId = child.userData.structureId ?? null;
-      const isSelected    = !!(sel && structureId === sel);
-      const isHighlighted = !!(structureId && hl.has(structureId));
+      // 一個 mesh 可能 belongs-to 多個 structure（cortex orbital 同時是 prefrontal + frontal-lobe）
+      const sids = child.userData.structureIds; // Set or undefined
+      const isSelected    = !!(sel && sids && sids.has(sel));
+      const isHighlighted = !!(sids && [...hl].some(id => sids.has(id)));
       const isFocused     = isSelected || isHighlighted;
 
       for (const mat of mats) {
@@ -110,8 +111,6 @@ export class LayerManager {
         let transparent = origTransparent;
         let depthWrite = origDepthWrite;
 
-        // Markers ignore layer 'fade' (they should stay legible as cues),
-        // but they still get dimmed when something else is focused.
         if (!isMarker && state === 'fade') {
           opacity = FADE_OPACITY;
           transparent = true;
@@ -121,6 +120,18 @@ export class LayerManager {
           opacity *= ISOLATE_DIM;
           transparent = true;
           depthWrite = false;
+        }
+
+        // ── focus 狀態（被選中 or 通路高亮）下，brain mesh 加溫黃 emissive 讓對應區域「發光」
+        if (mat.emissive) {
+          if (mat.userData._origEmissive === undefined) {
+            mat.userData._origEmissive = mat.emissive.getHex();
+          }
+          if (!isMarker && (isSelected || isHighlighted)) {
+            mat.emissive.setHex(isSelected ? 0x665020 : 0x4a3814);
+          } else {
+            mat.emissive.setHex(mat.userData._origEmissive);
+          }
         }
 
         mat.opacity = opacity;

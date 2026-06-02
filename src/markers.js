@@ -10,10 +10,11 @@ import { SYSTEM_COLORS } from './structures.js';
 // 兩者的差別只在不透明度與大小：deep 略小略透，提示「這是腦內示意位置」。
 const DEEP_SYSTEMS = new Set(['limbic', 'brainstem']);
 
-const BASE_RADIUS = 0.035;       // 真實腦尺寸；觸控容易點到
-const SELECT_SCALE = 2.2;        // 點選後放大倍率（明顯）
-const SELECT_COLOR = 0xffeb87;   // 點選後變金黃（與所有區域顏色都有對比）
-const HOVER_SCALE  = 1.5;
+const BASE_RADIUS = 0.022;       // 顯示尺寸（小巧）
+const HIT_PROXY_MULT = 2.5;      // 隱形碰撞球倍率（觸控容易點到）
+const SELECT_SCALE = 2.4;        // 點選後放大倍率
+const SELECT_COLOR = 0xffeb87;   // 點選後變金黃
+const HOVER_SCALE  = 1.6;
 
 export function createMarkers(structures) {
   const group = new THREE.Group();
@@ -45,14 +46,26 @@ export function createMarkers(structures) {
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.fromArray(s.markerPosition);
     mesh.userData.structureId = s.id;
+    mesh.userData.structureIds = new Set([s.id]);
     mesh.userData.isMarker = true;
     mesh.userData.isDeep = isDeep;
     mesh.userData.kind = s.kind ?? 'structure';
     mesh.renderOrder = 999;
     mesh.name = `marker:${s.id}`;
 
-    // kind === 'external' / 'organ' 屬於通路專用節點（威脅、心臟…），
-    // 預設隱藏，只在所屬通路播放時由 PathwayPlayer 切換顯示。
+    // ── 隱形 hit proxy：放大的 sphere 提供寬鬆觸控區（material.visible=false 不渲染，
+    //    但 raycaster 仍會 hit）。掛在 mesh 上，跟著選取縮放走。
+    const hitGeo = new THREE.SphereGeometry(radius * HIT_PROXY_MULT, 8, 6);
+    const hitMat = new THREE.MeshBasicMaterial({ visible: false });
+    const hitMesh = new THREE.Mesh(hitGeo, hitMat);
+    hitMesh.userData.structureId = s.id;
+    hitMesh.userData.structureIds = new Set([s.id]);
+    hitMesh.userData.isMarker = true;
+    hitMesh.userData.isPickProxy = true;
+    hitMesh.name = `pick:${s.id}`;
+    mesh.add(hitMesh);
+
+    // kind === 'external' / 'organ' 預設隱藏；只在通路播放時顯示。
     if (s.kind === 'external' || s.kind === 'organ') {
       mesh.visible = false;
     }

@@ -38,7 +38,10 @@ export function buildPathwayPanel(container, descContainer, player) {
         <div class="pathway-desc-titles">
           <h2>通路說明 · ${p.name}</h2>
         </div>
-        <button class="pathway-desc-collapse" aria-label="收合說明">▾</button>
+        <div class="pathway-desc-actions">
+          <button class="pathway-desc-stop" type="button" title="停止通路">■ 停止</button>
+          <button class="pathway-desc-collapse" aria-label="收合說明" type="button">▾</button>
+        </div>
       </header>
       <div class="pathway-desc-body">
         <p class="pathway-desc">${p.description}</p>
@@ -70,8 +73,12 @@ export function buildPathwayPanel(container, descContainer, player) {
     }
   });
 
-  // ── Description panel events (collapse) ──
+  // ── Description panel events ──
   descContainer.addEventListener('click', (e) => {
+    if (e.target.closest('.pathway-desc-stop')) {
+      player.stop();
+      return;
+    }
     const collapse = e.target.closest('.pathway-desc-collapse');
     if (collapse) {
       descContainer.classList.toggle('collapsed');

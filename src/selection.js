@@ -46,7 +46,7 @@ export class SelectionController {
     const out = [];
     const walk = (obj) => {
       if (!obj.visible) return;
-      if (obj.isMesh && obj.userData.structureId) out.push(obj);
+      if (obj.isMesh && (obj.userData.structureId || obj.userData.structureIds)) out.push(obj);
       for (const c of obj.children) walk(c);
     };
     walk(this.scene);
@@ -56,7 +56,11 @@ export class SelectionController {
   _pick() {
     this.raycaster.setFromCamera(this.pointer, this.camera);
     const hits = this.raycaster.intersectObjects(this._collectCandidates(), false);
-    return hits[0]?.object ?? null;
+    if (hits.length === 0) return null;
+    // 優先選 marker（深部 marker 在腦內部，但 hit proxy 在外圍；總是讓 marker 贏）
+    const markerHit = hits.find(h => h.object.userData.isMarker);
+    if (markerHit) return markerHit.object;
+    return hits[0].object;
   }
 
   _onMove = (e) => {

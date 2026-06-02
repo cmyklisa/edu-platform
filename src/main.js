@@ -9,12 +9,15 @@ import {
 import { LayerManager, buildLayerPanel } from './layers.js';
 import { structuresList, SYSTEM_COLORS } from './structures.js';
 import { colorizeBrain } from './colorize.js';
+import { tagBrainMeshes } from './structureMeshMap.js';
 import { createMarkers, updateMarkerVisuals } from './markers.js';
 import { SelectionController } from './selection.js';
 import { buildInfoPanel, buildTooltip } from './infoPanel.js';
 import { PathwayPlayer } from './pathwayPlayer.js';
 import { buildPathwayPanel } from './pathwayPanel.js';
 import { ClippingController, buildClippingPanel } from './clipping.js';
+import { createOrientationEyes } from './orientationCue.js';
+import { ExplodeController, buildExplodePanel } from './explode.js';
 import { makeDraggable } from './draggable.js';
 
 const canvas = document.getElementById('scene');
@@ -25,6 +28,7 @@ const tooltipEl          = document.getElementById('tooltip');
 const pathwayPanelEl     = document.getElementById('pathway-panel');
 const pathwayDescPanelEl = document.getElementById('pathway-desc-panel');
 const clipPanelEl        = document.getElementById('clip-panel');
+const explodePanelEl     = document.getElementById('explode-panel');
 
 const renderer = new THREE.WebGLRenderer({
   canvas, antialias: true, alpha: false, powerPreference: 'high-performance',
@@ -118,8 +122,10 @@ async function loadAnatomy() {
       // scaled bbox 中心會跑到 scale × center 的世界座標，因此把 root 位置設為 -scaleFactor × center
       real.position.copy(center.multiplyScalar(-scaleFactor));
     }
-    // 依 mesh 名稱關鍵字分區，套上對應顏色（前/後/側葉、小腦、腦幹、邊緣系統各一色）
+    // 依 mesh 名稱關鍵字分區，套上對應顏色
     colorizeBrain(real, SYSTEM_COLORS);
+    // 依 mesh 名稱關鍵字 tag 對應 structureId（多重 tag），讓點選/通路高亮能命中真實 mesh
+    tagBrainMeshes(real);
     layerManager.registerMesh('nerve', real);
     console.info('[edu-platform] loaded real anatomy:',
       '#meshes=', countMeshes(real),
@@ -151,7 +157,20 @@ async function loadAnatomy() {
   buildClippingPanel(clipPanelEl, clipping);
   makeDraggable(clipPanelEl);
 
-  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, camera, controls };
+  // 方向參考眼球（依腦 bbox 估算位置；標 isOverlay 不被剖面/淡化影響）
+  if (real) {
+    const eyes = createOrientationEyes(clipBbox);
+    scene.add(eyes);
+  }
+
+  // 爆炸視圖
+  const brainCenter = clipBbox.getCenter(new THREE.Vector3());
+  explodeCtrl = new ExplodeController({ root: modelRoot, brainCenter });
+  explodeCtrl.build();
+  buildExplodePanel(explodePanelEl, explodeCtrl);
+  makeDraggable(explodePanelEl);
+
+  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, camera, controls };
   console.info('[edu-platform] markers created:', markerMap.size);
 
   fitCameraToObject(modelRoot);
@@ -252,6 +271,7 @@ const selection = new SelectionController({
 // ── Pathway player + Clipping (initialized after anatomy loads) ─────────
 let pathwayPlayer = null;
 let clipping = null;
+let explodeCtrl = null;
 function buildPathwayStack() {
   pathwayPlayer = new PathwayPlayer({
     scene,
