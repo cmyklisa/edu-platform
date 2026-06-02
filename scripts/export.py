@@ -22,7 +22,8 @@ JOBS = [
     ("Cranium",               "skull.glb",   0.35),   # 顱骨（含下顎），mesh 多所以多 decimate
     ("Cardiovascular system", "vessels.glb", 0.5),    # 全身血管系統（無細分頭部）
     ("Spinal cord",           "spinal.glb",  0.5),    # 脊髓本體（Z-Anatomy 只有約 2 mesh）
-    ("Muscles of head",       "muscles.glb", 0.45),   # 頭部肌肉，替代 muscle placeholder
+    ("Muscles of head",       "muscles.glb", 0.45),   # 頭部肌肉
+    ("Regions of head",       "skin.glb",    0.5),    # 頭部表面區塊（拼成 face mask）
 ]
 
 MIN_POLYS_TO_DECIMATE = 200

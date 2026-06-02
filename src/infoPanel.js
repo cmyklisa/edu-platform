@@ -14,6 +14,7 @@ export function buildInfoPanel(container, { onClose } = {}) {
       return;
     }
     const isPlaceholder = !s.meshName; // 無真實 mesh → 標記為示意位置
+    const diseases = Array.isArray(s.diseases_zh) ? s.diseases_zh : null;
     container.innerHTML = `
       <header class="info-panel-header">
         <div class="info-titles">
@@ -27,6 +28,12 @@ export function buildInfoPanel(container, { onClose } = {}) {
         ${isPlaceholder ? '<span class="placeholder-tag">示意位置</span>' : ''}
       </div>
       <p class="info-function">${s.function_zh}</p>
+      ${diseases ? `
+        <div class="info-diseases">
+          <h3>相關疾病</h3>
+          <ul>${diseases.map(d => `<li>${d}</li>`).join('')}</ul>
+        </div>
+      ` : ''}
     `;
     container.classList.add('visible');
   }

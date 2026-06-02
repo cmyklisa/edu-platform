@@ -445,6 +445,116 @@ html, body, #app {
   color: var(--fg);
 }
 
+.info-diseases {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255,255,255,0.10);
+}
+.info-diseases h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ff9a9a;
+  letter-spacing: 0.04em;
+}
+.info-diseases ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.info-diseases li { margin-bottom: 2px; }
+
+/* ── Quiz UI ──────────────────────────────────────────────────────────── */
+.quiz-toggle-slot {
+  margin-left: auto;
+  pointer-events: auto;
+}
+.quiz-toggle {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: var(--fg);
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.quiz-toggle:hover {
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.30);
+}
+.quiz-toggle.active {
+  background: rgba(255, 216, 106, 0.22);
+  border-color: rgba(255, 216, 106, 0.65);
+  color: #ffe7a8;
+  font-weight: 600;
+}
+
+.info-panel.quiz-mode { width: 320px; }
+
+.quiz-options {
+  list-style: none;
+  margin: 8px 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.quiz-option {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--fg);
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.12s, border-color 0.12s;
+}
+.quiz-option:hover {
+  background: rgba(106,166,255,0.15);
+  border-color: rgba(106,166,255,0.55);
+}
+
+.quiz-score {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--muted);
+  text-align: right;
+}
+
+.quiz-result.correct { color: #80d68b; }
+.quiz-result.wrong   { color: #ff8a8a; }
+
+.quiz-correct-name {
+  margin: 8px 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.quiz-continue {
+  margin-top: 10px;
+  width: 100%;
+  background: rgba(106,166,255,0.16);
+  border: 1px solid rgba(106,166,255,0.45);
+  color: var(--accent);
+  font-size: 12.5px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+}
+.quiz-continue:hover {
+  background: rgba(106,166,255,0.30);
+}
+
 /* ── Tooltip (hover) ──────────────────────────────────────────────────── */
 .tooltip {
   position: fixed;

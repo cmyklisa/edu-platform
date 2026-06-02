@@ -21,6 +21,7 @@ import { createOrientationEyes } from './orientationCue.js';
 import { ExplodeController, buildExplodePanel } from './explode.js';
 import { OrganNavigator, buildOrganNavBar } from './organNav.js';
 import { createHeartVessels } from './heartVessels.js';
+import { QuizController, buildQuizToggle } from './quiz.js';
 import { makeDraggable } from './draggable.js';
 
 const canvas = document.getElementById('scene');
@@ -85,6 +86,7 @@ const REAL_VESSELS_URL  = `${BASE}models/vessels.glb`;
 const REAL_HEART_URL    = `${BASE}models/heart.glb`;
 const REAL_SPINAL_URL   = `${BASE}models/spinal.glb`;
 const REAL_MUSCLES_URL  = `${BASE}models/muscles.glb`;
+const REAL_SKIN_URL     = `${BASE}models/skin.glb`;
 
 // 共享 Draco loader — 多個 GLB 載入只下載一次 decoder wasm
 const _shared_draco = new DRACOLoader();
@@ -155,6 +157,7 @@ async function loadAnatomy() {
     await loadAlignedLayer(REAL_VESSELS_URL, 'vessel', { scaleFactor, center, color: 0xff5a4a, opacity: 1 });
     await loadAlignedLayer(REAL_SPINAL_URL,  'nerve',  { scaleFactor, center, color: 0xf3e08a, opacity: 1 });
     await loadAlignedLayer(REAL_MUSCLES_URL, 'muscle', { scaleFactor, center, color: 0xc14a40, opacity: 0.95 });
+    await loadAlignedLayer(REAL_SKIN_URL,    'skin',   { scaleFactor, center, color: 0xf3c6a8, opacity: 1 });
 
     // ── bbox 分兩種：純 brain（給眼球用）vs 含 skull 的（給 skin/muscle 殼用）
     real.updateMatrixWorld(true);
@@ -168,9 +171,10 @@ async function loadAnatomy() {
     window.__brainBbox = brainOnlyBox;  // 純腦，眼球位置依據
     window.__headBbox  = headBox;       // 腦 + 顱骨，skin/muscle 殼依據
 
-    // 皮膚仍用 procedural shell（Z-Anatomy 沒有 skin 模型）。
-    // 肌肉若有真實 GLB 載入成功，則此處不再加 placeholder（避免雙層）。
-    layerManager.registerMesh('skin', createSkinShellAroundBbox(headBox, { buffer: 1.10 }));
+    // skin / muscle：真實 GLB 載入成功就用，否則回退到 procedural shell（防雙層）
+    if (layerManager.getGroup('skin').children.length === 0) {
+      layerManager.registerMesh('skin', createSkinShellAroundBbox(headBox, { buffer: 1.10 }));
+    }
     if (layerManager.getGroup('muscle').children.length === 0) {
       layerManager.registerMesh('muscle', createMuscleShellAroundBbox(headBox, { buffer: 1.04 }));
     }
@@ -459,6 +463,10 @@ const infoPanel = buildInfoPanel(infoPanelEl, {
 });
 const tooltip = buildTooltip(tooltipEl);
 
+// Quiz controller 共用 infoPanelEl 容器
+const quiz = new QuizController(infoPanelEl);
+buildQuizToggle(document.getElementById('quiz-toggle-slot'), quiz);
+
 const selection = new SelectionController({
   canvas, camera, scene,
   onSelectChange: (id) => {
@@ -468,7 +476,11 @@ const selection = new SelectionController({
       hoveredId: selection.hoveredId,
       highlightSet: layerManager.highlightSet,
     });
-    infoPanel.render(id);
+    if (quiz.enabled && id) {
+      quiz.startQuestion(id);
+    } else if (!quiz.enabled) {
+      infoPanel.render(id);
+    }
   },
   onHoverChange: (id, event) => {
     updateMarkerVisuals(markerMap, {
