@@ -70,7 +70,7 @@ scene.add(modelRoot);
 const layerManager = new LayerManager();
 layerManager.addAllTo(modelRoot);
 
-const REAL_MODEL_URL = '/models/brain.glb'; // future real asset
+const REAL_MODEL_URL = '/models/brain.glb'; // Z-Anatomy 匯出：Brain collection only
 
 async function tryLoadRealModel(url) {
   // Vite dev server SPA-fallbacks unknown URLs to index.html (HTTP 200),
@@ -105,7 +105,21 @@ async function loadAnatomy() {
   // selectable as real meshes (still keeping markers for deep nuclei).
   const real = await tryLoadRealModel(REAL_MODEL_URL);
   if (real) {
+    // 真實 Z-Anatomy 模型：以解剖座標出現，先 scale 再以 scaled bbox center 來抵消位移
+    const box = new THREE.Box3().setFromObject(real);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3()).length();
+    if (size > 0) {
+      const targetSize = 1.4;
+      const scaleFactor = targetSize / size;
+      real.scale.setScalar(scaleFactor);
+      // scaled bbox 中心會跑到 scale × center 的世界座標，因此把 root 位置設為 -scaleFactor × center
+      real.position.copy(center.multiplyScalar(-scaleFactor));
+    }
     layerManager.registerMesh('nerve', real);
+    console.info('[edu-platform] loaded real anatomy:',
+      '#meshes=', countMeshes(real),
+      'origSize=', size.toFixed(3));
   } else {
     layerManager.registerMesh('skin',   createSkinShell());
     layerManager.registerMesh('muscle', createMuscleShell());
@@ -133,14 +147,21 @@ async function loadAnatomy() {
   buildClippingPanel(clipPanelEl, clipping);
   makeDraggable(clipPanelEl);
 
-  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping };
+  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, camera, controls };
   console.info('[edu-platform] markers created:', markerMap.size);
 
   fitCameraToObject(modelRoot);
   hideLoading();
 }
 
+function countMeshes(root) {
+  let n = 0;
+  root.traverse(o => { if (o.isMesh) n++; });
+  return n;
+}
+
 function computeAnatomyBbox(root) {
+  root.updateMatrixWorld(true);
   const box = new THREE.Box3();
   const meshBox = new THREE.Box3();
   root.traverseVisible(o => {
@@ -153,6 +174,11 @@ function computeAnatomyBbox(root) {
 }
 
 function fitCameraToObject(object) {
+  // Force-refresh all world matrices in the subtree. Necessary because we may have
+  // mutated transforms (scale/position on the loaded GLB root) since the last render,
+  // and Box3.setFromObject(mesh) does not propagate parent updates by itself.
+  object.updateMatrixWorld(true);
+
   // Bbox excludes markers (they sit at extreme positions for external/organ nodes
   // like 威脅 and 心臟; we don't want them blowing up the framing). Uses traverseVisible
   // so currently-hidden meshes are ignored too.

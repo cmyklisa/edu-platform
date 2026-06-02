@@ -10,7 +10,7 @@ import { SYSTEM_COLORS } from './structures.js';
 // 兩者的差別只在不透明度與大小：deep 略小略透，提示「這是腦內示意位置」。
 const DEEP_SYSTEMS = new Set(['limbic', 'brainstem']);
 
-const BASE_RADIUS = 0.06;
+const BASE_RADIUS = 0.025;  // 對應真實 Z-Anatomy 腦尺寸（bbox 約 0.7×0.8×0.9）
 
 export function createMarkers(structures) {
   const group = new THREE.Group();

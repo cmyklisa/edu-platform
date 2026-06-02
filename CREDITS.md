@@ -32,4 +32,34 @@
 
 ## 目前狀態
 
-> 第①階段尚未匯入真實解剖幾何，畫面顯示的是 procedural 佔位模型（純算法生成，非衍生資產），不受上述 CC BY-SA 約束。真實資產接入後本檔將更新對應檔案清單與其修改說明。
+### `public/models/brain.glb`
+- **來源**：Z-Anatomy（CC BY-SA 4.0）`Startup.blend` 的 `Brain` collection（含 cerebrum、cerebellum、brainstem 全展開的子 collection）
+- **衍生工具**：`scripts/export.py`（Blender 5.1，headless）
+- **修改**：
+  - 以遞迴方式從 `bpy.data.collections['Brain']` 收集 mesh 物件
+  - 超過 200 polygons 的 mesh 套用 Decimate modifier（ratio 0.5）後 apply
+  - glTF Y-up 轉換，Draco 壓縮（位置 14、法線 10、UV 12 量化）
+  - 結果：257 mesh，482k polygons，1.4 MB（GLB 二進位）
+
+### `public/models/heart.glb`
+- **來源**：Z-Anatomy（CC BY-SA 4.0）`Startup.blend` 的 `Heart` collection
+- **衍生工具**：同上
+- **修改**：
+  - 全部 17 個 mesh 都套用 Decimate ratio 0.5（小型結構也減）
+  - Y-up + Draco
+  - 結果：17 mesh，28.5k polygons，212 KB
+
+### `scripts/export.py` 與 `scripts/inspect_blend.py`
+- 衍生自 Z-Anatomy 上游資料，本身為使用 Blender Python API 的描述性程式碼
+- 以 MIT 授權釋出（與本 repo 程式碼相同），但其產出（上述 GLB）採 CC BY-SA 4.0
+
+### 散布時必附的歸屬聲明
+若您散布上述衍生 GLB，請保留以下文字（或顯示在 UI 中，本 repo 已在頁尾顯示）：
+> Anatomical models derived from Z-Anatomy by Gauthier Kervyn & Marcin Zielinski,
+> Z-Anatomy itself derived from BodyParts3D © The Database Center for Life Science.
+> Both upstream and this derivative are licensed under CC BY-SA 4.0.
+> Modifications: collection extraction, decimation (Blender Decimate Collapse), glTF Y-up + Draco compression.
+
+### 尚未匯入的部分
+- 皮膚 / 肌肉 / 骨骼 / 血管圖層：目前仍使用 procedural schematic 殼（非衍生資產）
+- BodyParts3D 心臟原始 OBJ：未直接使用（已透過 Z-Anatomy 的整合版包進 `Heart` collection）

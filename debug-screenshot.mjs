@@ -68,13 +68,96 @@ await page.mouse.up();
 await page.waitForTimeout(300);
 await page.screenshot({ path: '/tmp/edu-layer-dragged.png' });
 
+// One-off: dump all real-anatomy mesh names + their world centroid + bounding box.
+// Useful for retuning marker positions to match real-brain landmarks.
+const landmarks = await page.evaluate(() => {
+  const edu = window.__edu;
+  if (!edu) return null;
+  const THREE_VEC3 = edu.controls.target.constructor; // poor man's THREE.Vector3
+  edu.scene.updateMatrixWorld(true);
+  const out = [];
+  edu.scene.traverse(o => {
+    if (!o.isMesh) return;
+    if (o.userData.isMarker || o.userData.isOverlay) return;
+    if (!o.name) return;
+    if (!o.geometry) return;
+    o.geometry.computeBoundingBox?.();
+    const bb = o.geometry.boundingBox;
+    if (!bb) return;
+    const cx = (bb.min.x + bb.max.x) / 2;
+    const cy = (bb.min.y + bb.max.y) / 2;
+    const cz = (bb.min.z + bb.max.z) / 2;
+    const m = o.matrixWorld.elements;
+    const wx = m[0]*cx + m[4]*cy + m[8]*cz + m[12];
+    const wy = m[1]*cx + m[5]*cy + m[9]*cz + m[13];
+    const wz = m[2]*cx + m[6]*cy + m[10]*cz + m[14];
+    out.push({ name: o.name, world: [wx, wy, wz] });
+  });
+  return out;
+});
+
+import { writeFile } from 'node:fs/promises';
+await writeFile('/tmp/brain-landmarks.json', JSON.stringify(landmarks, null, 2));
+console.log(`Wrote ${landmarks?.length ?? 0} landmarks → /tmp/brain-landmarks.json`);
+
 const diag = await page.evaluate(() => {
+  const THREE_ = window.__edu?.scene?.constructor;
+  const edu = window.__edu;
+  if (!edu) return { error: 'no __edu' };
+  // Find the real anatomy group (it's in nerve layer)
+  const nerve = edu.layerManager.getGroup('nerve');
+  let realRoot = null;
+  for (const c of nerve.children) {
+    if (c.name?.startsWith('Scene') || c.children.length > 5) {
+      realRoot = c;
+      break;
+    }
+  }
+  let realInfo = null;
+  // Compute world bbox of the real anatomy after transforms
+  let realBboxInfo = null;
+  if (realRoot) {
+    realRoot.updateMatrixWorld(true);
+    const min = { x: Infinity, y: Infinity, z: Infinity };
+    const max = { x: -Infinity, y: -Infinity, z: -Infinity };
+    let meshCount = 0;
+    realRoot.traverse(o => {
+      if (!o.isMesh || !o.geometry) return;
+      meshCount++;
+      o.geometry.computeBoundingBox?.();
+      const bb = o.geometry.boundingBox;
+      if (!bb) return;
+      const m = o.matrixWorld.elements;
+      // sample 8 corners
+      for (const cx of [bb.min.x, bb.max.x]) for (const cy of [bb.min.y, bb.max.y]) for (const cz of [bb.min.z, bb.max.z]) {
+        const x = m[0]*cx + m[4]*cy + m[8]*cz + m[12];
+        const y = m[1]*cx + m[5]*cy + m[9]*cz + m[13];
+        const z = m[2]*cx + m[6]*cy + m[10]*cz + m[14];
+        if (x < min.x) min.x = x; if (y < min.y) min.y = y; if (z < min.z) min.z = z;
+        if (x > max.x) max.x = x; if (y > max.y) max.y = y; if (z > max.z) max.z = z;
+      }
+    });
+    realBboxInfo = { min, max, meshCount,
+      size: { x: max.x - min.x, y: max.y - min.y, z: max.z - min.z },
+      center: { x: (min.x+max.x)/2, y: (min.y+max.y)/2, z: (min.z+max.z)/2 },
+    };
+  }
+  if (realRoot) {
+    realInfo = {
+      name: realRoot.name,
+      position: realRoot.position.toArray(),
+      scale: realRoot.scale.toArray(),
+      childCount: realRoot.children.length,
+    };
+  }
   return {
-    layerPanelRect: document.getElementById('layer-panel').getBoundingClientRect(),
-    pathwayPanelRect: document.getElementById('pathway-panel').getBoundingClientRect(),
-    descPanelRect: document.getElementById('pathway-desc-panel').getBoundingClientRect(),
-    descCollapsed: document.getElementById('pathway-desc-panel').classList.contains('collapsed'),
-    descHidden: document.getElementById('pathway-desc-panel').hasAttribute('hidden'),
+    sceneChildCount: edu.scene.children.length,
+    nerveChildren: nerve.children.length,
+    nerveChildNames: nerve.children.map(c => c.name || c.type),
+    realInfo,
+    realBboxInfo,
+    cameraPos: edu.camera ? edu.camera.position.toArray() : null,
+    cameraTarget: edu.controls?.target.toArray(),
   };
 });
 

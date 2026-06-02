@@ -9,7 +9,8 @@
 - [x] **③ 點選 → 資訊面板** — 中文名 / 拉丁名 / 中文功能說明；深部核標記永遠可見、淺層 marker 推到表面外。
 - [x] **④ 功能通路高亮 + 動畫** — `pathways.json` 驅動，整條鏈高亮 + 光點沿 CatmullRomCurve3 流動。
 - [x] **⑤ 剖面切片** — 三軸 clipping plane（矢狀 X / 冠狀 Z / 水平 Y），標記與通路覆蓋不受切影響。
-- [ ] **⑥ 真實 glTF 資產管線** — Z-Anatomy / BodyParts3D 的 Blender 匯出 + Draco 壓縮（佔位仍在用中）。
+- [x] **⑥ 真實 glTF 資產管線（核心）** — Z-Anatomy `Brain` + `Heart` collection 經 headless Blender + Decimate + Draco 匯出，`scripts/export.py` 可重跑。Markers 已依真實腦座標（mesh 重心）重新校準。
+- [ ] **⑥ 延伸**：皮膚/肌肉/骨骼/血管圖層仍 procedural；mesh-name → structure-id 對應未做（目前點選只能透過 marker）；heart.glb 已備好但未接入通路動畫。
 
 ## 執行方式
 
@@ -58,21 +59,41 @@ dev server 預設跑在 http://localhost:5173。
 
 ## 模型資產（階段⑥）
 
-真實解剖幾何不憑空生成，來源為：
+真實解剖幾何來自：
 
 - **Z-Anatomy** — https://www.z-anatomy.com/  （CC BY-SA 4.0）
-- **BodyParts3D** — © The Database Center for Life Science（CC BY-SA 2.1 Japan）
+- **BodyParts3D** — © The Database Center for Life Science（CC BY-SA 2.1 Japan，已內含於 Z-Anatomy）
 
-匯入流程（後續實作）：
+實際匯入流程（已實作於 `scripts/`）：
 
-1. `git clone` 上述 repo。
-2. headless Blender（`blender --background --python export.py`）將需要的 collection 匯出為 glTF。
-3. Decimate 簡化網格至網頁可順跑（中階筆電 60fps 目標）。
-4. Draco 壓縮，置於 `public/models/`。
+```bash
+# 一次性下載 Z-Anatomy.zip 並解壓
+curl -L -o external/Z-Anatomy.zip \
+  https://raw.githubusercontent.com/Z-Anatomy/Models-of-human-anatomy/master/Z-Anatomy.zip
+unzip external/Z-Anatomy.zip -d external/
 
-> 目前所有階段使用 procedural 佔位模型把互動外殼跑起來。
-> 一旦真實 `public/models/brain.glb` 存在，`main.js` 的 `tryLoadRealModel` 會自動偵測並載入；
-> 之後加上 mesh-name → layerId 的對應，即可把真實 mesh 路由到對應 layer。
+# 列出 collection 結構（debug 用）
+/Applications/Blender.app/Contents/MacOS/Blender --background \
+  external/Z-Anatomy/Startup.blend --python scripts/inspect_blend.py
+
+# 匯出 brain.glb + heart.glb 到 /tmp/edu-export
+/Applications/Blender.app/Contents/MacOS/Blender --background \
+  external/Z-Anatomy/Startup.blend --python scripts/export.py
+
+# 複製到 public/models/
+cp /tmp/edu-export/brain.glb public/models/
+cp /tmp/edu-export/heart.glb public/models/
+```
+
+`main.js` 的 `tryLoadRealModel` 會自動偵測 `public/models/brain.glb`，存在就載入並取代 procedural 佔位；
+不存在則回退到 procedural 殼（前 5 階段的開發模式仍可運作）。
+
+> 若要回到 placeholder 模式：刪除 `public/models/brain.glb` 即可。
+
+### Marker 校準腳本
+`debug-screenshot.mjs` 會在執行階段把 `public/models/brain.glb` 內所有 mesh 名稱與世界座標重心
+（套用 main.js 的 scale/center 之後）dump 到 `/tmp/brain-landmarks.json`，
+用來判定 `structures.json` 中 markerPosition 該擺哪。
 
 ## 除錯
 
