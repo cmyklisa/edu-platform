@@ -18,6 +18,7 @@ import { buildInfoPanel, buildTooltip } from './infoPanel.js';
 import { PathwayPlayer } from './pathwayPlayer.js';
 import { ClippingController } from './clipping.js';
 import { createOrientationEyes } from './orientationCue.js';
+import { createSkinTexture, findOrbitalCenters } from './skinTexture.js';
 import { ExplodeController, buildExplodePanel } from './explode.js';
 import { OrganNavigator, buildOrganNavBar } from './organNav.js';
 import { createHeartVessels } from './heartVessels.js';
@@ -87,6 +88,7 @@ const REAL_HEART_URL    = `${BASE}models/heart.glb`;
 const REAL_SPINAL_URL   = `${BASE}models/spinal.glb`;
 const REAL_MUSCLES_URL  = `${BASE}models/muscles.glb`;
 const REAL_SKIN_URL     = `${BASE}models/skin.glb`;
+const REAL_NERVES_URL   = `${BASE}models/nerves.glb`;
 
 // 共享 Draco loader — 多個 GLB 載入只下載一次 decoder wasm
 const _shared_draco = new DRACOLoader();
@@ -156,8 +158,21 @@ async function loadAnatomy() {
     await loadAlignedLayer(REAL_SKULL_URL,   'bone',   { scaleFactor, center, color: 0xece1c6, opacity: 0.92 });
     await loadAlignedLayer(REAL_VESSELS_URL, 'vessel', { scaleFactor, center, color: 0xff5a4a, opacity: 1 });
     await loadAlignedLayer(REAL_SPINAL_URL,  'nerve',  { scaleFactor, center, color: 0xf3e08a, opacity: 1 });
+    // 周邊神經網絡（含交感神經幹／脊神經）—— 預設淡出，避免覆蓋住其他結構
+    await loadAlignedLayer(REAL_NERVES_URL,  'nerve',  { scaleFactor, center, color: 0xf8d758, opacity: 0.95 });
     await loadAlignedLayer(REAL_MUSCLES_URL, 'muscle', { scaleFactor, center, color: 0xc14a40, opacity: 0.95 });
-    await loadAlignedLayer(REAL_SKIN_URL,    'skin',   { scaleFactor, center, color: 0xf3c6a8, opacity: 1 });
+    await loadAlignedLayer(REAL_SKIN_URL,    'skin',   { scaleFactor, center, color: 0xe8b59a, opacity: 1 });
+    // 把程序化皮膚紋路套到所有 skin material（雜訊 + 色斑 + 毛孔）
+    const skinTex = createSkinTexture();
+    layerManager.getGroup('skin').traverse(o => {
+      if (!o.isMesh || !o.material) return;
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      for (const m of mats) {
+        m.map = skinTex;
+        m.roughness = 0.85;
+        m.needsUpdate = true;
+      }
+    });
 
     // ── bbox 分兩種：純 brain（給眼球用）vs 含 skull 的（給 skin/muscle 殼用）
     real.updateMatrixWorld(true);
@@ -199,7 +214,8 @@ async function loadAnatomy() {
   // 加進 vessel layer → LayerManager 高亮邏輯能對它套 emissive 黃光。
   if (real) {
     const heartTargetSize = 0.55;
-    const heartPos = new THREE.Vector3(-0.10, -0.85, 0.10);
+    // 胸腔位置：在腦下方更遠處（解剖上心臟在頸下、胸骨後方）
+    const heartPos = new THREE.Vector3(-0.12, -1.50, 0.05);
     const heartWrapper = await loadOrganMesh(REAL_HEART_URL, 'heart', {
       targetSize: heartTargetSize,
       position: heartPos,
@@ -243,9 +259,23 @@ async function loadAnatomy() {
   });
   clipping.applyToMaterials();
 
-  // 方向參考眼球
-  if (real && window.__brainBbox) {
-    scene.add(createOrientationEyes(window.__brainBbox));
+  // 方向參考眼球：優先用 skin 的眶區算左右眼世界座標
+  if (real) {
+    const skinGroup = layerManager.getGroup('skin');
+    const orbital = skinGroup.children.length ? findOrbitalCenters(skinGroup) : null;
+    if (orbital) {
+      orbital.left.z  += 0.02;  // 略往前推到皮膚外側
+      orbital.right.z += 0.02;
+      const eyeRadius = Math.max(0.025, orbital.left.distanceTo(orbital.right) * 0.14);
+      scene.add(createOrientationEyes({
+        leftPos: orbital.left, rightPos: orbital.right, radius: eyeRadius,
+      }));
+      console.info('[edu-platform] eyes aligned to orbital region',
+        'L=', orbital.left.toArray().map(v => +v.toFixed(3)),
+        'R=', orbital.right.toArray().map(v => +v.toFixed(3)));
+    } else if (window.__brainBbox) {
+      scene.add(createOrientationEyes(window.__brainBbox));
+    }
   }
 
   // Explode
@@ -292,9 +322,9 @@ async function loadAnatomy() {
       getTarget: () => {
         const h = markerMap.get('heart');
         if (!h) return null;
-        return { center: h.position.clone(), distance: 1.3 };
+        // 心臟下移到胸腔，相機要拉遠一點才框得到
+        return { center: h.position.clone(), distance: 1.7 };
       },
-      // heart 已常駐顯示（與血管視覺連接），不需要 onFocus/onLeave 切顯隱
     },
     {
       id: 'spinal-cord',
@@ -418,22 +448,22 @@ function computeAnatomyBbox(root) {
 }
 
 function fitCameraToObject(object) {
-  // Force-refresh all world matrices in the subtree. Necessary because we may have
-  // mutated transforms (scale/position on the loaded GLB root) since the last render,
-  // and Box3.setFromObject(mesh) does not propagate parent updates by itself.
   object.updateMatrixWorld(true);
 
-  // Bbox excludes markers (they sit at extreme positions for external/organ nodes
-  // like 威脅 and 心臟; we don't want them blowing up the framing). Uses traverseVisible
-  // so currently-hidden meshes are ignored too.
-  const box = new THREE.Box3();
-  const meshBox = new THREE.Box3();
-  object.traverseVisible(o => {
-    if (o.isMesh && !o.userData.isMarker) {
-      meshBox.setFromObject(o);
-      box.union(meshBox);
-    }
-  });
+  // 優先用 head bbox（腦 + 顱骨）做緊湊框景；周邊神經延伸到全身，但預設只看頭。
+  let box;
+  if (window.__headBbox && !window.__headBbox.isEmpty()) {
+    box = window.__headBbox.clone();
+  } else {
+    box = new THREE.Box3();
+    const meshBox = new THREE.Box3();
+    object.traverseVisible(o => {
+      if (o.isMesh && !o.userData.isMarker) {
+        meshBox.setFromObject(o);
+        box.union(meshBox);
+      }
+    });
+  }
   if (box.isEmpty()) return;
   const size = box.getSize(new THREE.Vector3()).length();
   const center = box.getCenter(new THREE.Vector3());

@@ -9,8 +9,10 @@ export class OrganNavigator {
   constructor({ camera, controls, defaultPos, defaultTarget }) {
     this.camera = camera;
     this.controls = controls;
-    this.defaultPos = defaultPos.clone();
-    this.defaultTarget = defaultTarget.clone();
+    // 直接保留 reference（不 clone）—— 這樣即使 fitCameraToObject 在之後才跑、
+    // 更新了 defaultCameraPos / defaultTarget，nav reset 仍會用到新值。
+    this.defaultPos = defaultPos;
+    this.defaultTarget = defaultTarget;
     this.tween = null;
     this.activeOrganId = null;
   }

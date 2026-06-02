@@ -24,6 +24,7 @@ JOBS = [
     ("Spinal cord",           "spinal.glb",  0.5),    # 脊髓本體（Z-Anatomy 只有約 2 mesh）
     ("Muscles of head",       "muscles.glb", 0.45),   # 頭部肌肉
     ("Regions of head",       "skin.glb",    0.5),    # 頭部表面區塊（拼成 face mask）
+    ("Spinal nerves",         "nerves.glb",  0.25),   # 周邊神經（含交感纖維），從脊髓延伸
 ]
 
 MIN_POLYS_TO_DECIMATE = 200
