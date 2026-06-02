@@ -158,12 +158,14 @@ export class PathwayPlayer {
     const dotPulse = 1 + 0.18 * Math.sin(tNow * 2);
     this.dot.scale.setScalar(dotPulse);
 
-    // Pulse the chain markers (but let the currently selected one stay bigger)
+    // Pulse the chain markers (but let the currently selected one stay bigger).
+    // 跳過 isMarker===false 的 entry（真實 organ mesh），它有自己的尺寸，不能亂縮放
     const selId = this.getSelectedId();
     const pulse = CHAIN_PULSE_BASE + CHAIN_PULSE_AMP * Math.sin(tNow);
     for (const id of this.active.nodes) {
       const m = this.markerMap.get(id);
       if (!m) continue;
+      if (m.userData.isMarker === false) continue;
       const scale = (id === selId) ? 1.55 : pulse;
       m.scale.setScalar(scale);
     }

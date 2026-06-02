@@ -80,10 +80,12 @@ export function createMarkers(structures) {
 export function updateMarkerVisuals(markerMap, { selectedId, hoveredId, highlightSet }) {
   const hl = highlightSet ?? null;
   for (const [id, mesh] of markerMap) {
+    // 真實 mesh wrapper（isMarker === false）：scale/color 不適用，跳過
+    if (mesh.userData.isMarker === false) continue;
     // Skip chain markers when a pathway is active — PathwayPlayer.update owns their scale (pulse).
     if (hl && hl.has(id) && id !== selectedId) continue;
     const mat = mesh.material;
-    // Save original color once, so we can restore after deselect
+    if (!mat) continue;
     if (mat.userData._origColor === undefined) {
       mat.userData._origColor = mat.color.getHex();
     }

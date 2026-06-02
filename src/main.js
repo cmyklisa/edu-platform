@@ -79,6 +79,7 @@ const BASE = import.meta.env.BASE_URL;
 const REAL_MODEL_URL    = `${BASE}models/brain.glb`;
 const REAL_SKULL_URL    = `${BASE}models/skull.glb`;
 const REAL_VESSELS_URL  = `${BASE}models/vessels.glb`;
+const REAL_HEART_URL    = `${BASE}models/heart.glb`;
 
 // 共享 Draco loader — 多個 GLB 載入只下載一次 decoder wasm
 const _shared_draco = new DRACOLoader();
@@ -178,6 +179,30 @@ async function loadAnatomy() {
   for (const [k, v] of mm) markerMap.set(k, v);  // mutate, do NOT reassign
   layerManager.registerMesh('nerve', markersGroup);
 
+  // ── 真實 heart 模型：取代心臟 sphere marker ──
+  // 位置與原 marker 一致（-0.10, -0.85, 0.10），就在腦下方。
+  // 加進 vessel layer → LayerManager 高亮邏輯能對它套 emissive 黃光。
+  if (real) {
+    const heartTargetSize = 0.55;
+    const heartPos = new THREE.Vector3(-0.10, -0.85, 0.10);
+    const heartWrapper = await loadOrganMesh(REAL_HEART_URL, 'heart', {
+      targetSize: heartTargetSize,
+      position: heartPos,
+      color: 0xc4243a,
+      opacity: 1,
+    });
+    if (heartWrapper) {
+      layerManager.registerMesh('vessel', heartWrapper);
+      // 把原本的 sphere marker 從 markers group 移走、改 markerMap 指向 wrapper。
+      // PathwayPlayer 用 markerMap.get('heart').position 算通路曲線端點 →
+      // wrapper.position 就是端點；visible 切換也走 wrapper.visible。
+      const sphereMarker = markerMap.get('heart');
+      if (sphereMarker) sphereMarker.parent?.remove(sphereMarker);
+      markerMap.set('heart', heartWrapper);
+      console.info('[edu-platform] real heart attached, replacing sphere marker');
+    }
+  }
+
   // Pathway player（先建好；UI 之後在 toolsPanel 內 render）
   pathwayPlayer = new PathwayPlayer({
     scene, layerManager, markerMap,
@@ -221,6 +246,59 @@ async function loadAnatomy() {
 
   fitCameraToObject(modelRoot);
   hideLoading();
+}
+
+// 載入「器官」型 mesh（不依腦 align，自己決定目標 size + 放置位置）。
+// 回傳一個 wrapper Group：wrapper.position = position（給通路曲線用），
+// 內部 mesh 已置中且 scale 到 targetSize，並 tag structureId 供高亮使用。
+async function loadOrganMesh(url, structureId, { targetSize, position, color, opacity = 1 }) {
+  const obj = await tryLoadRealModel(url);
+  if (!obj) return null;
+
+  // Auto scale to targetSize
+  obj.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(obj);
+  const sizeLen = box.getSize(new THREE.Vector3()).length();
+  if (sizeLen > 0) obj.scale.setScalar(targetSize / sizeLen);
+
+  // Re-compute bbox after scale → center inside wrapper
+  obj.updateMatrixWorld(true);
+  const box2 = new THREE.Box3().setFromObject(obj);
+  const c = box2.getCenter(new THREE.Vector3());
+  obj.position.sub(c);
+
+  // Material 統一染色 + side DoubleSide（剖面切開不空心）
+  obj.traverse(o => {
+    if (!o.isMesh || !o.material) return;
+    const cloneOne = (m) => {
+      const c = m.clone();
+      if (color !== undefined) c.color.setHex(color);
+      if (c.map)         c.map = null;
+      if (c.emissiveMap) c.emissiveMap = null;
+      if (c.emissive)    c.emissive.setHex(0x000000);
+      c.side = 2;
+      c.transparent = opacity < 1;
+      c.opacity = opacity;
+      c.needsUpdate = true;
+      return c;
+    };
+    o.material = Array.isArray(o.material) ? o.material.map(cloneOne) : cloneOne(o.material);
+    o.userData.structureId = structureId;
+    o.userData.structureIds = new Set([structureId]);
+  });
+
+  // Wrapper 放在指定位置（通路曲線會用 wrapper.position）
+  const wrapper = new THREE.Group();
+  wrapper.name = `organ:${structureId}`;
+  wrapper.position.copy(position);
+  wrapper.add(obj);
+  wrapper.userData.structureId = structureId;
+  wrapper.userData.structureIds = new Set([structureId]);
+  wrapper.userData.kind = 'organ';
+  wrapper.userData.isMarker = false;   // 明確標記：不是 sphere marker，updateMarkerVisuals 應跳過
+  wrapper.userData.isOrgan = true;
+  wrapper.visible = false;             // 預設隱藏，通路播放時 PathwayPlayer 會切顯
+  return wrapper;
 }
 
 async function loadAlignedLayer(url, layerId, { scaleFactor, center, color, opacity = 1 }) {
