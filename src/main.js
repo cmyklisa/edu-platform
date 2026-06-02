@@ -19,11 +19,13 @@ import { PathwayPlayer } from './pathwayPlayer.js';
 import { ClippingController } from './clipping.js';
 import { createOrientationEyes } from './orientationCue.js';
 import { ExplodeController, buildExplodePanel } from './explode.js';
+import { OrganNavigator, buildOrganNavBar } from './organNav.js';
 import { makeDraggable } from './draggable.js';
 
 const canvas = document.getElementById('scene');
 const loadingEl = document.getElementById('loading');
 const toolsPanelEl       = document.getElementById('tools-panel');
+const organNavEl         = document.getElementById('organ-nav');
 const infoPanelEl        = document.getElementById('info-panel');
 const tooltipEl          = document.getElementById('tooltip');
 const pathwayDescPanelEl = document.getElementById('pathway-desc-panel');
@@ -149,20 +151,21 @@ async function loadAnatomy() {
     await loadAlignedLayer(REAL_SKULL_URL,   'bone',   { scaleFactor, center, color: 0xece1c6, opacity: 0.92 });
     await loadAlignedLayer(REAL_VESSELS_URL, 'vessel', { scaleFactor, center, color: 0xff5a4a, opacity: 1 });
 
-    // ── 真實腦 bbox（不含 markers / overlay）— 用來校準 skin / muscle / 眼球大小
+    // ── bbox 分兩種：純 brain（給眼球用）vs 含 skull 的（給 skin/muscle 殼用）
     real.updateMatrixWorld(true);
-    const brainBox = new THREE.Box3().setFromObject(real);
-    // 也擴展 skull bbox（如果有），讓 skin 至少能包住骨頭
+    const brainOnlyBox = new THREE.Box3().setFromObject(real);
+    const headBox = brainOnlyBox.clone();
     const boneGroup = layerManager.getGroup('bone');
     if (boneGroup.children.length) {
-      const boneBox = new THREE.Box3().setFromObject(boneGroup);
-      brainBox.union(boneBox);
+      boneGroup.updateMatrixWorld(true);
+      headBox.union(new THREE.Box3().setFromObject(boneGroup));
     }
-    window.__brainBbox = brainBox; // 供 debug/外掛使用
+    window.__brainBbox = brainOnlyBox;  // 純腦，眼球位置依據
+    window.__headBbox  = headBox;       // 腦 + 顱骨，skin/muscle 殼依據
 
-    // 對齊的 skin / muscle 殼（依 bbox 動態決定半徑）
-    layerManager.registerMesh('skin',   createSkinShellAroundBbox(brainBox,   { buffer: 1.18 }));
-    layerManager.registerMesh('muscle', createMuscleShellAroundBbox(brainBox, { buffer: 1.08 }));
+    // 對齊的 skin / muscle 殼（包到顱骨外面才合理）
+    layerManager.registerMesh('skin',   createSkinShellAroundBbox(headBox, { buffer: 1.10 }));
+    layerManager.registerMesh('muscle', createMuscleShellAroundBbox(headBox, { buffer: 1.04 }));
   } else {
     layerManager.registerMesh('skin',   createSkinShell());
     layerManager.registerMesh('muscle', createMuscleShell());
@@ -192,7 +195,8 @@ async function loadAnatomy() {
       opacity: 1,
     });
     if (heartWrapper) {
-      layerManager.registerMesh('vessel', heartWrapper);
+      // 放進 nerve layer（預設 visible），vessel layer 預設 hidden 會把 heart wrapper 一起遮掉
+      layerManager.registerMesh('nerve', heartWrapper);
       // 把原本的 sphere marker 從 markers group 移走、改 markerMap 指向 wrapper。
       // PathwayPlayer 用 markerMap.get('heart').position 算通路曲線端點 →
       // wrapper.position 就是端點；visible 切換也走 wrapper.visible。
@@ -241,7 +245,57 @@ async function loadAnatomy() {
   buildExplodePanel(explodePanelEl, explodeCtrl);
   makeDraggable(explodePanelEl);
 
-  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, camera, controls };
+  // ── 器官導航：相機平滑移動到指定器官 ──
+  organNav = new OrganNavigator({
+    camera, controls,
+    defaultPos: defaultCameraPos,
+    defaultTarget: defaultTarget,
+  });
+  const organs = [
+    {
+      id: 'brain',
+      label: '大腦',
+      getTarget: () => {
+        const bbox = window.__brainBbox;
+        if (!bbox) return null;
+        return {
+          center: bbox.getCenter(new THREE.Vector3()),
+          distance: bbox.getSize(new THREE.Vector3()).length() * 1.3,
+        };
+      },
+    },
+    {
+      id: 'heart',
+      label: '心臟',
+      getTarget: () => {
+        const h = markerMap.get('heart');
+        if (!h) return null;
+        return { center: h.position.clone(), distance: 1.3 };
+      },
+      onFocus: () => {
+        const h = markerMap.get('heart');
+        if (h) h.visible = true;
+      },
+      onLeave: () => {
+        // 通路沒在播時才隱藏（通路自己管 visibility）
+        const h = markerMap.get('heart');
+        if (h && !pathwayPlayer?.active) h.visible = false;
+      },
+    },
+    {
+      id: 'spinal-cord',
+      label: '脊髓',
+      getTarget: () => {
+        const m = markerMap.get('spinal-cord');
+        if (!m) return null;
+        return { center: m.position.clone(), distance: 1.0 };
+      },
+    },
+  ];
+  buildOrganNavBar(organNavEl, organNav, organs);
+  makeDraggable(organNavEl);
+
+  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, camera, controls };
   console.info('[edu-platform] markers created:', markerMap.size);
 
   fitCameraToObject(modelRoot);
@@ -421,6 +475,7 @@ const selection = new SelectionController({
 let pathwayPlayer = null;
 let clipping = null;
 let explodeCtrl = null;
+let organNav = null;
 
 // ESC: 取消選取；若已沒選取則停止通路
 window.addEventListener('keydown', (e) => {
@@ -451,6 +506,7 @@ window.addEventListener('keydown', (e) => {
 const clock = new THREE.Clock();
 function animate() {
   const dt = clock.getDelta();
+  if (organNav) organNav.update(dt);
   if (pathwayPlayer) pathwayPlayer.update(dt);
   controls.update();
   renderer.render(scene, camera);

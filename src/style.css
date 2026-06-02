@@ -124,6 +124,56 @@ html, body, #app {
   box-shadow: 0 12px 32px rgba(0,0,0,0.45);
 }
 
+/* ── Organ navigator (horizontal button bar, top-center) ──────────────── */
+.organ-nav {
+  position: absolute;
+  top: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 4px 6px;
+  backdrop-filter: blur(8px);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.organ-nav-header {
+  display: none;  /* 標題隱藏，靠按鈕就直觀 */
+}
+.organ-nav-body {
+  display: flex;
+  gap: 4px;
+}
+.organ-nav-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--fg);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.organ-nav-btn:hover {
+  background: rgba(255,255,255,0.06);
+}
+.organ-nav-btn.active {
+  background: rgba(106,166,255,0.22);
+  border-color: rgba(106,166,255,0.55);
+  color: var(--accent);
+}
+.organ-nav-btn.organ-nav-reset {
+  color: var(--muted);
+  border-color: rgba(255,255,255,0.08);
+}
+.organ-nav-btn.organ-nav-reset:hover {
+  color: var(--fg);
+}
+
 /* ── Tools panel (tabbed: layer / pathway / clip) ─────────────────────── */
 .tools-panel {
   position: absolute;

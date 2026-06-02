@@ -1,23 +1,28 @@
 // 大腦旁的方向參考物：兩顆眼球。
-// 不掛在任何 layer 之下，標 isOverlay 不被剖面切、不被選取淡化。
+// 預期傳入的是純 brain bbox（不含 skull/skin），這樣眼睛才會落在前額葉下方、向前。
+// 標 isOverlay 不被剖面切、不被選取淡化。
 
 import * as THREE from 'three';
 
 export function createOrientationEyes(brainBbox) {
-  // 眼睛位置依照腦的 bbox 估算（眼睛應該在前下方）
   const center = brainBbox.getCenter(new THREE.Vector3());
   const size = brainBbox.getSize(new THREE.Vector3());
+  const max = brainBbox.max;
 
-  const eyeY = center.y - size.y * 0.20;          // 略低於中心
-  const eyeZ = center.z + size.z * 0.55;          // 突出於前緣
-  const eyeOffsetX = size.x * 0.20;
-  const eyeRadius = Math.min(size.x, size.y, size.z) * 0.10;
+  // 解剖位置：
+  //   - z：腦前緣 (max.z) 再往前一點（眼窩在頭骨前壁），約 size.z 的 10% 外推
+  //   - y：在前額葉下方、視丘上方 — 略低於腦中心（眼眶位於前顱底）
+  //   - x：在腦寬度內側（眼睛不會比腦寬），約 size.x × 0.22
+  const eyeZ = max.z + size.z * 0.10;
+  const eyeY = center.y - size.y * 0.18;
+  const eyeOffsetX = size.x * 0.22;
+  // 眼球半徑：以較短邊為基準，約 5%（成人 brain ≈ 14cm、eyeball ≈ 2.4cm，比例 ~6:1）
+  const eyeRadius = Math.min(size.x, size.y, size.z) * 0.055;
 
   const group = new THREE.Group();
   group.name = 'orientation_eyes';
   group.userData.isOverlay = true;
 
-  const eyes = [];
   for (const dx of [-eyeOffsetX, eyeOffsetX]) {
     const sclera = new THREE.Mesh(
       new THREE.SphereGeometry(eyeRadius, 32, 24),
@@ -28,7 +33,7 @@ export function createOrientationEyes(brainBbox) {
     sclera.position.set(center.x + dx, eyeY, eyeZ);
     sclera.userData.isOverlay = true;
 
-    // 虹膜 + 瞳孔（朝向 +Z，與大腦同一前面方向）
+    // 虹膜面朝 +Z（與腦前緣朝向一致），protrude 出 sclera 前緣
     const iris = new THREE.Mesh(
       new THREE.SphereGeometry(eyeRadius * 0.55, 24, 16),
       new THREE.MeshBasicMaterial({ color: 0x3a5a8a, toneMapped: false })
@@ -46,7 +51,6 @@ export function createOrientationEyes(brainBbox) {
     iris.add(pupil);
 
     group.add(sclera);
-    eyes.push(sclera);
   }
 
   return group;
