@@ -124,25 +124,75 @@ html, body, #app {
   box-shadow: 0 12px 32px rgba(0,0,0,0.45);
 }
 
-/* ── Layer panel ──────────────────────────────────────────────────────── */
-.layer-panel {
+/* ── Tools panel (tabbed: layer / pathway / clip) ─────────────────────── */
+.tools-panel {
   position: absolute;
   left: 14px;
   top: 58px;
-  width: 270px;
+  width: 300px;
   max-height: calc(100vh - 130px);
-  overflow-y: auto;
+  overflow: hidden;
   background: var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: 10px;
-  padding: 10px 12px;
   backdrop-filter: blur(8px);
   font-size: 12px;
   z-index: 2;
   transition: max-height 0.25s ease;
+  display: flex;
+  flex-direction: column;
 }
+.tools-panel.collapsed { max-height: 38px; }
 
-.layer-panel.collapsed { max-height: 36px; overflow: hidden; }
+.tools-panel-header {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+  padding-left: 8px;
+}
+.tools-tabs {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  align-items: stretch;
+}
+.tools-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.tools-tab:hover { color: var(--fg); background: rgba(255,255,255,0.04); }
+.tools-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: rgba(106,166,255,0.06);
+}
+.tools-collapse {
+  background: transparent; border: none; color: var(--muted);
+  font-size: 14px; cursor: pointer; padding: 6px 10px;
+}
+.tools-collapse:hover { color: var(--fg); background: rgba(255,255,255,0.04); }
+
+.tools-body {
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+.tools-pane {
+  display: none;
+  padding: 10px 12px;
+}
+.tools-pane.active { display: block; }
+
+/* legacy panel positioning kept off — body content lives inside .tools-pane */
+.layer-panel, .pathway-panel, .clip-panel { all: unset; }
 
 .layer-panel-header {
   display: flex;
@@ -363,24 +413,8 @@ html, body, #app {
 }
 .tooltip[hidden] { display: none; }
 
-/* ── Pathway panel (buttons) ──────────────────────────────────────────── */
-.pathway-panel {
-  position: absolute;
-  left: 14px;
-  bottom: 38px;
-  width: 270px;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  backdrop-filter: blur(8px);
-  font-size: 12px;
-  z-index: 2;
-  transition: max-height 0.25s ease;
-  max-height: 240px;
-  overflow: hidden;
-}
-.pathway-panel.collapsed { max-height: 36px; }
+/* ── Pathway buttons inside tools pane ─────────────────────────────────── */
+/* .pathway-panel positioning removed — content lives inside .tools-pane[data-tabpane="pathway"] */
 
 /* ── Pathway description panel (separate, draggable, more prominent) ──── */
 .pathway-desc-panel {
@@ -476,47 +510,8 @@ html, body, #app {
   color: var(--fg);
 }
 
-/* ── Clip panel ───────────────────────────────────────────────────────── */
-.clip-panel {
-  position: absolute;
-  top: 290px;
-  right: 14px;
-  width: 270px;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  backdrop-filter: blur(8px);
-  font-size: 12px;
-  z-index: 2;
-  transition: max-height 0.25s ease;
-  max-height: 300px;
-  overflow: hidden;
-}
-.clip-panel.collapsed { max-height: 36px; }
-
-.clip-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-.clip-panel h2 {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-.clip-collapse {
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  font-size: 14px;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-.clip-collapse:hover { background: rgba(255,255,255,0.06); color: var(--fg); }
+/* ── Clip panel: inside tools-pane[data-tabpane="clip"] ──────────────── */
+/* positioning + outer chrome removed; .clip-axes / .clip-slider styles below still apply inside the pane */
 
 .clip-axes {
   display: grid;

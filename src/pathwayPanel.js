@@ -7,10 +7,6 @@ export function buildPathwayPanel(container, descContainer, player) {
   function renderButtons() {
     const activeId = player.active?.id ?? null;
     container.innerHTML = `
-      <header class="pathway-panel-header draggable-handle">
-        <h2>功能通路</h2>
-        <button class="pathway-collapse" aria-label="收合通路面板">▾</button>
-      </header>
       <ul class="pathway-list">
         ${pathwaysList.map(p => `
           <li>
@@ -64,12 +60,6 @@ export function buildPathwayPanel(container, descContainer, player) {
         const p = pathwaysList.find(x => x.id === id);
         if (p) player.play(p);
       }
-      return;
-    }
-    const collapse = e.target.closest('.pathway-collapse');
-    if (collapse) {
-      container.classList.toggle('collapsed');
-      collapse.textContent = container.classList.contains('collapsed') ? '▸' : '▾';
     }
   });
 

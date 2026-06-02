@@ -100,10 +100,6 @@ export class ClippingController {
 export function buildClippingPanel(container, controller) {
   function renderShell() {
     container.innerHTML = `
-      <header class="clip-panel-header draggable-handle">
-        <h2>剖面切片</h2>
-        <button class="clip-collapse" aria-label="收合剖面面板">▾</button>
-      </header>
       <div class="clip-body">
         <div class="clip-axes" role="radiogroup" aria-label="剖面方向">
           ${AXES.map(a => `
@@ -129,12 +125,7 @@ export function buildClippingPanel(container, controller) {
 
   container.addEventListener('click', (e) => {
     const axisBtn = e.target.closest('button[data-axis]');
-    if (axisBtn) { controller.setAxis(axisBtn.dataset.axis); return; }
-    const collapse = e.target.closest('.clip-collapse');
-    if (collapse) {
-      container.classList.toggle('collapsed');
-      collapse.textContent = container.classList.contains('collapsed') ? '▸' : '▾';
-    }
+    if (axisBtn) { controller.setAxis(axisBtn.dataset.axis); }
   });
 
   // Slider input does NOT trigger full re-render (would lose drag focus).

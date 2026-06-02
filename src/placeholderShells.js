@@ -56,6 +56,35 @@ export function createMuscleShell() {
   });
 }
 
+// 給真實腦用：依 brain bbox 動態決定殼的大小（避免 hard-coded 半徑跟真實比例不符）
+export function createSkinShellAroundBbox(bbox, { buffer = 1.18 } = {}) {
+  const size = bbox.getSize(new THREE.Vector3());
+  const center = bbox.getCenter(new THREE.Vector3());
+  const shell = makeShell({
+    radii: { x: size.x * 0.5 * buffer,
+             y: size.y * 0.5 * buffer,
+             z: size.z * 0.5 * buffer },
+    color: 0xf3c6a8, segments: 32, surfaceNoise: 0.02,
+    label: 'skin_aligned',
+  });
+  shell.position.copy(center);
+  return shell;
+}
+
+export function createMuscleShellAroundBbox(bbox, { buffer = 1.08 } = {}) {
+  const size = bbox.getSize(new THREE.Vector3());
+  const center = bbox.getCenter(new THREE.Vector3());
+  const shell = makeShell({
+    radii: { x: size.x * 0.5 * buffer,
+             y: size.y * 0.5 * buffer,
+             z: size.z * 0.5 * buffer },
+    color: 0xb94a3e, segments: 24, surfaceNoise: 0.05,
+    label: 'muscle_aligned',
+  });
+  shell.position.copy(center);
+  return shell;
+}
+
 export function createBoneShell() {
   return makeShell({
     radii: { x: 0.82, y: 1.00, z: 0.85 },

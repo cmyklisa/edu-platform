@@ -5,8 +5,10 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { createPlaceholderBrain } from './placeholderBrain.js';
 import {
   createSkinShell, createMuscleShell, createBoneShell, createVesselTubes,
+  createSkinShellAroundBbox, createMuscleShellAroundBbox,
 } from './placeholderShells.js';
-import { LayerManager, buildLayerPanel } from './layers.js';
+import { LayerManager } from './layers.js';
+import { buildToolsPanel } from './toolsPanel.js';
 import { structuresList, SYSTEM_COLORS } from './structures.js';
 import { colorizeBrain } from './colorize.js';
 import { tagBrainMeshes } from './structureMeshMap.js';
@@ -14,20 +16,17 @@ import { createMarkers, updateMarkerVisuals } from './markers.js';
 import { SelectionController } from './selection.js';
 import { buildInfoPanel, buildTooltip } from './infoPanel.js';
 import { PathwayPlayer } from './pathwayPlayer.js';
-import { buildPathwayPanel } from './pathwayPanel.js';
-import { ClippingController, buildClippingPanel } from './clipping.js';
+import { ClippingController } from './clipping.js';
 import { createOrientationEyes } from './orientationCue.js';
 import { ExplodeController, buildExplodePanel } from './explode.js';
 import { makeDraggable } from './draggable.js';
 
 const canvas = document.getElementById('scene');
 const loadingEl = document.getElementById('loading');
-const layerPanelEl       = document.getElementById('layer-panel');
+const toolsPanelEl       = document.getElementById('tools-panel');
 const infoPanelEl        = document.getElementById('info-panel');
 const tooltipEl          = document.getElementById('tooltip');
-const pathwayPanelEl     = document.getElementById('pathway-panel');
 const pathwayDescPanelEl = document.getElementById('pathway-desc-panel');
-const clipPanelEl        = document.getElementById('clip-panel');
 const explodePanelEl     = document.getElementById('explode-panel');
 
 const renderer = new THREE.WebGLRenderer({
@@ -145,10 +144,24 @@ async function loadAnatomy() {
       '#meshes=', countMeshes(real),
       'origSize=', size.toFixed(3));
 
-    // ── 對齊載入其它 Z-Anatomy 圖層（用同一 scale 與 center，這樣它們在原始
-    //    解剖空間裡的位置關係會被保留）
+    // ── 對齊載入 skull / vessels（同 scale + center）
     await loadAlignedLayer(REAL_SKULL_URL,   'bone',   { scaleFactor, center, color: 0xece1c6, opacity: 0.92 });
-    await loadAlignedLayer(REAL_VESSELS_URL, 'vessel', { scaleFactor, center, color: 0xd23a3a, opacity: 1 });
+    await loadAlignedLayer(REAL_VESSELS_URL, 'vessel', { scaleFactor, center, color: 0xff5a4a, opacity: 1 });
+
+    // ── 真實腦 bbox（不含 markers / overlay）— 用來校準 skin / muscle / 眼球大小
+    real.updateMatrixWorld(true);
+    const brainBox = new THREE.Box3().setFromObject(real);
+    // 也擴展 skull bbox（如果有），讓 skin 至少能包住骨頭
+    const boneGroup = layerManager.getGroup('bone');
+    if (boneGroup.children.length) {
+      const boneBox = new THREE.Box3().setFromObject(boneGroup);
+      brainBox.union(boneBox);
+    }
+    window.__brainBbox = brainBox; // 供 debug/外掛使用
+
+    // 對齊的 skin / muscle 殼（依 bbox 動態決定半徑）
+    layerManager.registerMesh('skin',   createSkinShellAroundBbox(brainBox,   { buffer: 1.18 }));
+    layerManager.registerMesh('muscle', createMuscleShellAroundBbox(brainBox, { buffer: 1.08 }));
   } else {
     layerManager.registerMesh('skin',   createSkinShell());
     layerManager.registerMesh('muscle', createMuscleShell());
@@ -156,10 +169,7 @@ async function loadAnatomy() {
     layerManager.registerMesh('vessel', createVesselTubes());
     layerManager.registerMesh('nerve',  createPlaceholderBrain());
   }
-  // 即使有真實腦：Z-Anatomy 沒有 skin 模型，保留 procedural 皮膚殼當示意
-  if (real) {
-    layerManager.registerMesh('skin', createSkinShell());
-  }
+  // skin / muscle 在 real 分支內已用對齊版本（createSkinShellAroundBbox）註冊
 
   // Structure markers (deep nuclei + cortical lobes in placeholder mode).
   // Markers belong to the 'nerve' layer so they hide when nerve is hidden,
@@ -168,28 +178,41 @@ async function loadAnatomy() {
   for (const [k, v] of mm) markerMap.set(k, v);  // mutate, do NOT reassign
   layerManager.registerMesh('nerve', markersGroup);
 
-  buildPathwayStack();
+  // Pathway player（先建好；UI 之後在 toolsPanel 內 render）
+  pathwayPlayer = new PathwayPlayer({
+    scene, layerManager, markerMap,
+    getSelectedId: () => selection.selectedId,
+  });
 
-  // Compute clipping bbox once (excludes markers / overlay).
+  // Clipping
   const clipBbox = computeAnatomyBbox(modelRoot);
   clipping = new ClippingController({
     renderer, scene,
     getBoundingBox: () => clipBbox,
   });
   clipping.applyToMaterials();
-  buildClippingPanel(clipPanelEl, clipping);
-  makeDraggable(clipPanelEl);
 
-  // 方向參考眼球（依腦 bbox 估算位置；標 isOverlay 不被剖面/淡化影響）
-  if (real) {
-    const eyes = createOrientationEyes(clipBbox);
-    scene.add(eyes);
+  // 方向參考眼球
+  if (real && window.__brainBbox) {
+    scene.add(createOrientationEyes(window.__brainBbox));
   }
 
-  // 爆炸視圖
+  // Explode
   const brainCenter = clipBbox.getCenter(new THREE.Vector3());
   explodeCtrl = new ExplodeController({ root: modelRoot, brainCenter });
   explodeCtrl.build();
+
+  // ── 整合面板：分層 / 通路 / 剖面 三個 tab ──
+  buildToolsPanel(toolsPanelEl, {
+    layerManager,
+    pathwayPlayer,
+    pathwayDescContainer: pathwayDescPanelEl,
+    clipping,
+  });
+  makeDraggable(toolsPanelEl);
+  makeDraggable(pathwayDescPanelEl);
+
+  // Explode 仍獨立浮動（slider drag 不適合 tab 切換）
   buildExplodePanel(explodePanelEl, explodeCtrl);
   makeDraggable(explodePanelEl);
 
@@ -288,10 +311,6 @@ function hideLoading() {
   setTimeout(() => { loadingEl.style.display = 'none'; }, 500);
 }
 
-// ── UI: Layer panel ──────────────────────────────────────────────────────
-buildLayerPanel(layerPanelEl, layerManager);
-makeDraggable(layerPanelEl);
-
 // ── Selection + Info panel + Tooltip ─────────────────────────────────────
 const infoPanel = buildInfoPanel(infoPanelEl, {
   onClose: () => selection.select(null),
@@ -320,23 +339,10 @@ const selection = new SelectionController({
   },
 });
 
-// ── Pathway player + Clipping (initialized after anatomy loads) ─────────
+// ── Pathway player / Clipping / Explode 在 loadAnatomy 內初始化 ─────────
 let pathwayPlayer = null;
 let clipping = null;
 let explodeCtrl = null;
-function buildPathwayStack() {
-  pathwayPlayer = new PathwayPlayer({
-    scene,
-    layerManager,
-    markerMap,
-    getSelectedId: () => selection.selectedId,
-  });
-  buildPathwayPanel(pathwayPanelEl, pathwayDescPanelEl, pathwayPlayer);
-  // Drag handles after first render so headers exist.
-  makeDraggable(pathwayPanelEl);
-  makeDraggable(pathwayDescPanelEl);
-  if (window.__edu) window.__edu.pathwayPlayer = pathwayPlayer;
-}
 
 // ESC: 取消選取；若已沒選取則停止通路
 window.addEventListener('keydown', (e) => {

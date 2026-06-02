@@ -145,13 +145,9 @@ export class LayerManager {
   _notify() { for (const fn of this.listeners) fn(); }
 }
 
-// ── UI builder ───────────────────────────────────────────────────────────
+// ── UI builder（body-only：外層 tabbed panel 提供 header / drag handle / collapse）
 export function buildLayerPanel(container, manager) {
   container.innerHTML = `
-    <header class="layer-panel-header draggable-handle">
-      <h2>分層剝離</h2>
-      <button class="layer-collapse" aria-label="收合分層面板">▾</button>
-    </header>
     <ul class="layer-list">
       ${LAYERS.map(l => `
         <li data-layer="${l.id}">
@@ -168,7 +164,6 @@ export function buildLayerPanel(container, manager) {
       <button data-bulk="fade">全部淡出</button>
       <button data-bulk="hidden">全部隱藏</button>
     </div>
-    <p class="layer-note">本階段為 schematic 佔位幾何；真實 Z-Anatomy 資產接入後將取代各層內容。</p>
   `;
 
   function refresh() {
@@ -192,11 +187,6 @@ export function buildLayerPanel(container, manager) {
     }
     const bulkBtn = e.target.closest('button[data-bulk]');
     if (bulkBtn) { manager.setAll(bulkBtn.dataset.bulk); return; }
-    const collapse = e.target.closest('.layer-collapse');
-    if (collapse) {
-      container.classList.toggle('collapsed');
-      collapse.textContent = container.classList.contains('collapsed') ? '▸' : '▾';
-    }
   });
 
   manager.onChange(refresh);
