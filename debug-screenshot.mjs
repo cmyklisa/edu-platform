@@ -13,6 +13,33 @@ await page.waitForTimeout(1500);
 
 await page.screenshot({ path: '/tmp/edu-idle.png' });
 
+// Simulate clicking on the amygdala marker by projecting its world pos to screen pixels
+const clickResult = await page.evaluate(() => {
+  const edu = window.__edu;
+  const marker = edu.markerMap.get('amygdala');
+  if (!marker) return { error: 'no amygdala marker' };
+  marker.updateMatrixWorld(true);
+  const v = marker.position.clone();
+  // marker is child of layer group → use getWorldPosition
+  marker.getWorldPosition(v);
+  v.project(edu.camera);
+  const w = window.innerWidth, h = window.innerHeight;
+  return {
+    worldPos: marker.position.toArray(),
+    screenX: (v.x + 1) * 0.5 * w,
+    screenY: (1 - v.y) * 0.5 * h,
+  };
+});
+console.log('amygdala marker screen pos:', clickResult);
+if (clickResult.screenX !== undefined) {
+  // pointerdown + up at the position
+  await page.mouse.move(clickResult.screenX, clickResult.screenY);
+  await page.mouse.down();
+  await page.mouse.up();
+  await page.waitForTimeout(400);
+}
+await page.screenshot({ path: '/tmp/edu-clicked.png' });
+
 // Sagittal (X) at 50%
 await page.click('button[data-axis="x"]');
 await page.waitForTimeout(500);

@@ -6,13 +6,11 @@ export function buildInfoPanel(container, { onClose } = {}) {
   function render(id) {
     if (!id) {
       container.classList.remove('visible');
-      container.setAttribute('hidden', '');
       return;
     }
     const s = structureRegistry.get(id);
     if (!s) {
       container.classList.remove('visible');
-      container.setAttribute('hidden', '');
       return;
     }
     const isPlaceholder = !s.meshName; // 無真實 mesh → 標記為示意位置
@@ -31,7 +29,6 @@ export function buildInfoPanel(container, { onClose } = {}) {
       <p class="info-function">${s.function_zh}</p>
     `;
     container.classList.add('visible');
-    container.removeAttribute('hidden');
   }
 
   container.addEventListener('click', (e) => {

@@ -21,6 +21,10 @@ html, body, #app {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC",
     "Microsoft JhengHei", "Noto Sans TC", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  /* 阻擋手機 pinch-zoom（user-scalable=no 在 iOS 自 10 起被忽略），
+     但仍允許單指 pan（讓面板能滾動）。canvas 自己設 touch-action: none。 */
+  touch-action: pan-x pan-y;
 }
 
 #app {
@@ -254,13 +258,24 @@ html, body, #app {
   border-radius: 10px;
   padding: 12px 14px;
   backdrop-filter: blur(8px);
-  z-index: 3;
+  z-index: 5;
   font-size: 13px;
   color: var(--fg);
-  display: none;
-  pointer-events: auto;
+  /* slide-in 動畫 */
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s 0.18s;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
 }
-.info-panel.visible { display: block; }
+.info-panel.visible {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s 0s;
+}
 
 .info-panel-header {
   display: flex;
@@ -307,11 +322,16 @@ html, body, #app {
   border: 1px solid rgba(255,255,255,0.12);
   white-space: nowrap;
 }
-.system-cortex     { background: rgba(106,166,255,0.14); color: #aac6ff; border-color: rgba(106,166,255,0.40); }
-.system-limbic     { background: rgba(179,140,255,0.14); color: #cbb3ff; border-color: rgba(179,140,255,0.40); }
+.system-frontal    { background: rgba(106,166,255,0.14); color: #aac6ff; border-color: rgba(106,166,255,0.40); }
+.system-parietal   { background: rgba(166,139,255,0.14); color: #cab8ff; border-color: rgba(166,139,255,0.40); }
+.system-temporal   { background: rgba(255,154,139,0.14); color: #ffb5a4; border-color: rgba(255,154,139,0.40); }
+.system-occipital  { background: rgba(255,215,106,0.14); color: #ffe39c; border-color: rgba(255,215,106,0.40); }
+.system-limbic     { background: rgba(209,120,255,0.14); color: #e2a9ff; border-color: rgba(209,120,255,0.40); }
 .system-brainstem  { background: rgba(255,154,85,0.14);  color: #ffbe8c; border-color: rgba(255,154,85,0.40); }
 .system-cerebellum { background: rgba(128,214,139,0.14); color: #aee6b5; border-color: rgba(128,214,139,0.40); }
 .system-spinal     { background: rgba(84,209,214,0.14);  color: #8be0e6; border-color: rgba(84,209,214,0.40); }
+.system-stimulus   { background: rgba(255,90,90,0.14);   color: #ff9c9c; border-color: rgba(255,90,90,0.40); }
+.system-organ      { background: rgba(255,138,168,0.14); color: #ffb1c4; border-color: rgba(255,138,168,0.40); }
 .placeholder-tag {
   color: #f0b86e;
   background: rgba(240,184,110,0.10);

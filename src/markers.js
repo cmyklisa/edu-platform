@@ -10,7 +10,10 @@ import { SYSTEM_COLORS } from './structures.js';
 // 兩者的差別只在不透明度與大小：deep 略小略透，提示「這是腦內示意位置」。
 const DEEP_SYSTEMS = new Set(['limbic', 'brainstem']);
 
-const BASE_RADIUS = 0.025;  // 對應真實 Z-Anatomy 腦尺寸（bbox 約 0.7×0.8×0.9）
+const BASE_RADIUS = 0.035;       // 真實腦尺寸；觸控容易點到
+const SELECT_SCALE = 2.2;        // 點選後放大倍率（明顯）
+const SELECT_COLOR = 0xffeb87;   // 點選後變金黃（與所有區域顏色都有對比）
+const HOVER_SCALE  = 1.5;
 
 export function createMarkers(structures) {
   const group = new THREE.Group();
@@ -66,9 +69,19 @@ export function updateMarkerVisuals(markerMap, { selectedId, hoveredId, highligh
   for (const [id, mesh] of markerMap) {
     // Skip chain markers when a pathway is active — PathwayPlayer.update owns their scale (pulse).
     if (hl && hl.has(id) && id !== selectedId) continue;
+    const mat = mesh.material;
+    // Save original color once, so we can restore after deselect
+    if (mat.userData._origColor === undefined) {
+      mat.userData._origColor = mat.color.getHex();
+    }
     let scale = 1;
-    if (id === selectedId) scale = 1.55;
-    else if (id === hoveredId) scale = 1.25;
+    if (id === selectedId) {
+      scale = SELECT_SCALE;
+      mat.color.setHex(SELECT_COLOR);
+    } else {
+      mat.color.setHex(mat.userData._origColor);
+      if (id === hoveredId) scale = HOVER_SCALE;
+    }
     mesh.scale.setScalar(scale);
   }
 }

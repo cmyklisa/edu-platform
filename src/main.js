@@ -7,7 +7,8 @@ import {
   createSkinShell, createMuscleShell, createBoneShell, createVesselTubes,
 } from './placeholderShells.js';
 import { LayerManager, buildLayerPanel } from './layers.js';
-import { structuresList } from './structures.js';
+import { structuresList, SYSTEM_COLORS } from './structures.js';
+import { colorizeBrain } from './colorize.js';
 import { createMarkers, updateMarkerVisuals } from './markers.js';
 import { SelectionController } from './selection.js';
 import { buildInfoPanel, buildTooltip } from './infoPanel.js';
@@ -117,6 +118,8 @@ async function loadAnatomy() {
       // scaled bbox 中心會跑到 scale × center 的世界座標，因此把 root 位置設為 -scaleFactor × center
       real.position.copy(center.multiplyScalar(-scaleFactor));
     }
+    // 依 mesh 名稱關鍵字分區，套上對應顏色（前/後/側葉、小腦、腦幹、邊緣系統各一色）
+    colorizeBrain(real, SYSTEM_COLORS);
     layerManager.registerMesh('nerve', real);
     console.info('[edu-platform] loaded real anatomy:',
       '#meshes=', countMeshes(real),

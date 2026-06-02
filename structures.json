@@ -4,8 +4,12 @@
     "name_zh": "額葉",
     "name_la": "Lobus frontalis",
     "function_zh": "大腦最前方的區域，主管隨意動作的計畫與執行、語言產生（Broca 區），以及決策、情緒調節等高階行為控制。",
-    "system": "cortex",
-    "markerPosition": [0.00, 0.22, 0.28],
+    "system": "frontal",
+    "markerPosition": [
+      0.0,
+      0.22,
+      0.28
+    ],
     "meshName": null
   },
   {
@@ -13,8 +17,12 @@
     "name_zh": "前額葉",
     "name_la": "Cortex praefrontalis",
     "function_zh": "額葉最前端，負責計畫、衝動抑制、工作記憶、判斷與社交行為。發展最晚成熟，是「執行功能」的核心。",
-    "system": "cortex",
-    "markerPosition": [0.00, 0.16, 0.34],
+    "system": "frontal",
+    "markerPosition": [
+      0.0,
+      0.16,
+      0.34
+    ],
     "meshName": null
   },
   {
@@ -22,8 +30,12 @@
     "name_zh": "頂葉",
     "name_la": "Lobus parietalis",
     "function_zh": "整合來自皮膚、肌肉與感官的訊息，處理觸覺、本體感（身體位置感）、空間方位與手眼協調。",
-    "system": "cortex",
-    "markerPosition": [0.00, 0.31, -0.25],
+    "system": "parietal",
+    "markerPosition": [
+      0.0,
+      0.31,
+      -0.25
+    ],
     "meshName": null
   },
   {
@@ -31,8 +43,12 @@
     "name_zh": "顳葉",
     "name_la": "Lobus temporalis",
     "function_zh": "位於大腦兩側，負責聽覺處理、語言理解（Wernicke 區）、面孔與物體辨識，並參與長期記憶。",
-    "system": "cortex",
-    "markerPosition": [0.32, -0.06, 0.00],
+    "system": "temporal",
+    "markerPosition": [
+      0.32,
+      -0.06,
+      0.0
+    ],
     "meshName": null
   },
   {
@@ -40,18 +56,25 @@
     "name_zh": "枕葉",
     "name_la": "Lobus occipitalis",
     "function_zh": "大腦最後方的葉，主要負責視覺訊息的初步處理；視網膜傳來的訊號在此被解讀為形狀、顏色與動態。",
-    "system": "cortex",
-    "markerPosition": [0.00, -0.02, -0.43],
+    "system": "occipital",
+    "markerPosition": [
+      0.0,
+      -0.02,
+      -0.43
+    ],
     "meshName": null
   },
-
   {
     "id": "amygdala",
     "name_zh": "杏仁核",
     "name_la": "Corpus amygdaloideum",
     "function_zh": "邊緣系統的核心節點，偵測威脅、產生恐懼與情緒記憶。被啟動時會快速觸發戰、逃、僵的反應鏈。",
     "system": "limbic",
-    "markerPosition": [0.12, -0.04, 0.09],
+    "markerPosition": [
+      0.12,
+      -0.04,
+      0.09
+    ],
     "meshName": null
   },
   {
@@ -60,7 +83,11 @@
     "name_la": "Hippocampus",
     "function_zh": "把短期經驗轉成可儲存的長期記憶，也負責空間導航與情境記憶。海馬受損會造成新記憶無法形成。",
     "system": "limbic",
-    "markerPosition": [0.13, -0.04, 0.01],
+    "markerPosition": [
+      0.13,
+      -0.04,
+      0.01
+    ],
     "meshName": null
   },
   {
@@ -69,7 +96,11 @@
     "name_la": "Hypothalamus",
     "function_zh": "維持身體恆定（體溫、飢渴、睡眠、性慾），並透過腦垂體控制荷爾蒙；是神經與內分泌系統的橋樑。",
     "system": "limbic",
-    "markerPosition": [0.00, -0.03, 0.11],
+    "markerPosition": [
+      0.0,
+      -0.03,
+      0.11
+    ],
     "meshName": null
   },
   {
@@ -78,17 +109,24 @@
     "name_la": "Thalamus",
     "function_zh": "感覺與運動訊息的中繼站；除了嗅覺以外，幾乎所有感覺通路在送往大腦皮質之前都會先經過視丘。",
     "system": "limbic",
-    "markerPosition": [0.06, 0.03, 0.00],
+    "markerPosition": [
+      0.06,
+      0.03,
+      0.0
+    ],
     "meshName": null
   },
-
   {
     "id": "midbrain",
     "name_zh": "中腦",
     "name_la": "Mesencephalon",
     "function_zh": "腦幹最上段，連接前腦與後腦。負責眼動、聽覺反射、體溫調節，內含導水管周圍灰質（PAG）。",
     "system": "brainstem",
-    "markerPosition": [0.00, -0.05, 0.01],
+    "markerPosition": [
+      0.0,
+      -0.05,
+      0.01
+    ],
     "meshName": null
   },
   {
@@ -97,7 +135,11 @@
     "name_la": "Substantia grisea centralis",
     "function_zh": "位於中腦深部的小核，整合對威脅與疼痛的內臟與行為反應；是恐懼通路觸發凍結、心率與呼吸變化的關鍵節點。",
     "system": "brainstem",
-    "markerPosition": [0.00, -0.05, -0.02],
+    "markerPosition": [
+      0.0,
+      -0.05,
+      -0.02
+    ],
     "meshName": null
   },
   {
@@ -106,7 +148,11 @@
     "name_la": "Pons",
     "function_zh": "腦幹中段，連接大腦與小腦。調節呼吸節奏、面部感覺與動作、聽覺，並參與睡眠週期切換。",
     "system": "brainstem",
-    "markerPosition": [0.00, -0.15, 0.00],
+    "markerPosition": [
+      0.0,
+      -0.15,
+      0.0
+    ],
     "meshName": null
   },
   {
@@ -115,30 +161,39 @@
     "name_la": "Medulla oblongata",
     "function_zh": "腦幹最下段，控制最基本的生命功能：心跳、血壓、呼吸、吞嚥與嘔吐反射。受損常導致致命結果。",
     "system": "brainstem",
-    "markerPosition": [0.00, -0.30, -0.06],
+    "markerPosition": [
+      0.0,
+      -0.3,
+      -0.06
+    ],
     "meshName": null
   },
-
   {
     "id": "cerebellum",
     "name_zh": "小腦",
     "name_la": "Cerebellum",
     "function_zh": "協調隨意動作、維持平衡、調節肌肉張力與動作學習；近年也被發現參與部分認知與情緒功能。",
     "system": "cerebellum",
-    "markerPosition": [0.00, -0.20, -0.20],
+    "markerPosition": [
+      0.0,
+      -0.2,
+      -0.2
+    ],
     "meshName": null
   },
-
   {
     "id": "spinal-cord",
     "name_zh": "脊髓",
     "name_la": "Medulla spinalis",
     "function_zh": "中樞神經系統延伸至軀幹的部分，傳遞大腦與身體之間的訊息，並負責基本的反射動作（如膝跳反射）。",
     "system": "spinal",
-    "markerPosition": [0.00, -0.42, -0.06],
+    "markerPosition": [
+      0.0,
+      -0.42,
+      -0.06
+    ],
     "meshName": null
   },
-
   {
     "id": "threat-stimulus",
     "name_zh": "威脅刺激",
@@ -146,7 +201,11 @@
     "function_zh": "外部威脅事件（如見到捕食者、聽到突然巨響）。並非腦內結構，而是觸發恐懼/壓力反應的輸入訊號；僅在相關通路啟動時顯示。",
     "system": "stimulus",
     "kind": "external",
-    "markerPosition": [0.00, 0.20, 0.55],
+    "markerPosition": [
+      0.0,
+      0.2,
+      0.55
+    ],
     "meshName": null
   },
   {
@@ -156,7 +215,11 @@
     "function_zh": "恐懼/壓力通路的下游目標器官。腦幹自主神經輸出讓心率與血壓上升，準備肌肉應對威脅。僅在相關通路啟動時顯示。",
     "system": "organ",
     "kind": "organ",
-    "markerPosition": [-0.10, -0.85, 0.10],
+    "markerPosition": [
+      -0.1,
+      -0.85,
+      0.1
+    ],
     "meshName": null
   }
 ]
