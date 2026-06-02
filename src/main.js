@@ -19,6 +19,7 @@ import { PathwayPlayer } from './pathwayPlayer.js';
 import { ClippingController } from './clipping.js';
 import { createOrientationEyes } from './orientationCue.js';
 import { createSkinTexture, findOrbitalCenters } from './skinTexture.js';
+import { NervePulseController } from './nervePulse.js';
 import { ExplodeController, buildExplodePanel } from './explode.js';
 import { OrganNavigator, buildOrganNavBar } from './organNav.js';
 import { createHeartVessels } from './heartVessels.js';
@@ -89,6 +90,7 @@ const REAL_SPINAL_URL   = `${BASE}models/spinal.glb`;
 const REAL_MUSCLES_URL  = `${BASE}models/muscles.glb`;
 const REAL_SKIN_URL     = `${BASE}models/skin.glb`;
 const REAL_NERVES_URL   = `${BASE}models/nerves.glb`;
+const REAL_SYMP_URL     = `${BASE}models/sympathetic.glb`;
 
 // 共享 Draco loader — 多個 GLB 載入只下載一次 decoder wasm
 const _shared_draco = new DRACOLoader();
@@ -149,6 +151,7 @@ async function loadAnatomy() {
     }
     colorizeBrain(real, SYSTEM_COLORS);
     tagBrainMeshes(real);
+    real.userData.isBrainMesh = true;  // 給 NervePulse 跳過用
     layerManager.registerMesh('nerve', real);
     console.info('[edu-platform] loaded real anatomy:',
       '#meshes=', countMeshes(real),
@@ -158,8 +161,10 @@ async function loadAnatomy() {
     await loadAlignedLayer(REAL_SKULL_URL,   'bone',   { scaleFactor, center, color: 0xece1c6, opacity: 0.92 });
     await loadAlignedLayer(REAL_VESSELS_URL, 'vessel', { scaleFactor, center, color: 0xff5a4a, opacity: 1 });
     await loadAlignedLayer(REAL_SPINAL_URL,  'nerve',  { scaleFactor, center, color: 0xf3e08a, opacity: 1 });
-    // 周邊神經網絡（含交感神經幹／脊神經）—— 預設淡出，避免覆蓋住其他結構
+    // 周邊神經網絡（脊神經，含交感+體感）— 在 nerve layer
     await loadAlignedLayer(REAL_NERVES_URL,  'nerve',  { scaleFactor, center, color: 0xf8d758, opacity: 0.95 });
+    // 交感神經幹（autonomic chain，沿脊髓兩側）— 獨立 sympathetic layer，預設隱藏
+    await loadAlignedLayer(REAL_SYMP_URL,    'sympathetic', { scaleFactor, center, color: 0xa6e7ff, opacity: 1 });
     await loadAlignedLayer(REAL_MUSCLES_URL, 'muscle', { scaleFactor, center, color: 0xc14a40, opacity: 0.95 });
     await loadAlignedLayer(REAL_SKIN_URL,    'skin',   { scaleFactor, center, color: 0xe8b59a, opacity: 1 });
     // 把程序化皮膚紋路套到所有 skin material（雜訊 + 色斑 + 毛孔）
@@ -339,7 +344,24 @@ async function loadAnatomy() {
   buildOrganNavBar(organNavEl, organNav, organs);
   makeDraggable(organNavEl);
 
-  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, camera, controls };
+  // 註冊神經脈衝動畫目標：脊神經（nerves.glb）+ 交感神經幹（sympathetic.glb）
+  if (real) {
+    const nervesGroup = layerManager.getGroup('nerve');
+    // 只動畫 nerves.glb 載入的部分（root name 包含 'Scene' 但有許多子 mesh）
+    // 簡單做法：對整個 nerve layer 註冊，但跳過 brain/marker（brain 已被 colorize 改 emissive，
+    // 且 isMarker/structureIds 等已 tag）
+    // 改成：明確找 nerves.glb 與 sympathetic 對應的 Scene group
+    for (const c of nervesGroup.children) {
+      if (c.userData.isBrainMesh) continue;          // brain.glb，colorize 已套，不脈衝
+      if (c.userData.isHeartProxy || c.userData.isOrgan) continue;
+      if (c.name === 'structure_markers' || c.name === 'heart_brain_vessels') continue;
+      nervePulse.registerGroup(c, { phaseAxis: 'y', posScale: 5 });
+    }
+    nervePulse.registerGroup(layerManager.getGroup('sympathetic'), { phaseAxis: 'y', posScale: 8 });
+    console.info('[edu-platform] nerve pulse animation targets:', nervePulse.targets.length);
+  }
+
+  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, nervePulse, camera, controls };
   console.info('[edu-platform] markers created:', markerMap.size);
 
   fitCameraToObject(modelRoot);
@@ -528,6 +550,7 @@ let pathwayPlayer = null;
 let clipping = null;
 let explodeCtrl = null;
 let organNav = null;
+const nervePulse = new NervePulseController();
 
 // ESC: 取消選取；若已沒選取則停止通路
 window.addEventListener('keydown', (e) => {
@@ -560,6 +583,7 @@ function animate() {
   const dt = clock.getDelta();
   if (organNav) organNav.update(dt);
   if (pathwayPlayer) pathwayPlayer.update(dt);
+  nervePulse.update(dt);
   controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(animate);

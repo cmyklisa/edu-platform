@@ -4,11 +4,12 @@
 import * as THREE from 'three';
 
 export const LAYERS = [
-  { id: 'skin',   label: '皮膚',     color: '#f3c6a8', defaultState: 'fade'    },
-  { id: 'muscle', label: '肌肉',     color: '#b94a3e', defaultState: 'hidden'  },
-  { id: 'bone',   label: '骨骼',     color: '#ece1c6', defaultState: 'hidden'  },
-  { id: 'vessel', label: '血管',     color: '#d23a3a', defaultState: 'hidden'  },
-  { id: 'nerve',  label: '神經系統', color: '#f0d870', defaultState: 'visible' },
+  { id: 'skin',        label: '皮膚',     color: '#f3c6a8', defaultState: 'fade'    },
+  { id: 'muscle',      label: '肌肉',     color: '#b94a3e', defaultState: 'hidden'  },
+  { id: 'bone',        label: '骨骼',     color: '#ece1c6', defaultState: 'hidden'  },
+  { id: 'vessel',      label: '血管',     color: '#d23a3a', defaultState: 'hidden'  },
+  { id: 'nerve',       label: '神經系統', color: '#f0d870', defaultState: 'visible' },
+  { id: 'sympathetic', label: '交感神經', color: '#66ddff', defaultState: 'hidden'  },
 ];
 
 export const STATES = ['visible', 'fade', 'hidden'];
@@ -123,7 +124,8 @@ export class LayerManager {
         }
 
         // ── focus 狀態（被選中 or 通路高亮）下，brain mesh 加溫黃 emissive 讓對應區域「發光」
-        if (mat.emissive) {
+        // 神經脈衝動畫的 mesh 跳過：emissive 完全交給 NervePulseController
+        if (mat.emissive && !child.userData.isNerveAnimated) {
           if (mat.userData._origEmissive === undefined) {
             mat.userData._origEmissive = mat.emissive.getHex();
           }

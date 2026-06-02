@@ -25,6 +25,9 @@ JOBS = [
     ("Muscles of head",       "muscles.glb", 0.45),   # 頭部肌肉
     ("Regions of head",       "skin.glb",    0.5),    # 頭部表面區塊（拼成 face mask）
     ("Spinal nerves",         "nerves.glb",  0.25),   # 周邊神經（含交感纖維），從脊髓延伸
+    # 交感神經幹（Sympathetic trunk）+ 胸腰段自主神經，沿脊髓兩側分布
+    (["Sympathetic trunk", "Thoracolumbar part of autonomic division"],
+                              "sympathetic.glb", 0.5),
 ]
 
 MIN_POLYS_TO_DECIMATE = 200
@@ -59,18 +62,21 @@ def apply_decimate(obj, ratio):
         obj.select_set(was_selected)
 
 
-def export_one(coll_name, filename, decimate_ratio):
+def export_one(coll_spec, filename, decimate_ratio):
+    """coll_spec 可以是單一 collection name，或是 list of names（合併到同一 GLB）。"""
     out_path = os.path.join(OUTPUT_DIR, filename)
-    print(f"\n========== Export job: {coll_name} → {filename} ==========")
+    coll_names = coll_spec if isinstance(coll_spec, (list, tuple)) else [coll_spec]
+    label = " + ".join(coll_names)
+    print(f"\n========== Export job: {label} → {filename} ==========")
 
-    coll = bpy.data.collections.get(coll_name)
-    if coll is None:
-        print(f"  ✗ collection '{coll_name}' not found, skipping")
-        return None
-
-    # Collect target meshes
+    # Collect target meshes from one or more collections
     targets = []
-    collect_meshes_recursive(coll, targets)
+    for name in coll_names:
+        coll = bpy.data.collections.get(name)
+        if coll is None:
+            print(f"  ✗ collection '{name}' not found, skipping")
+            continue
+        collect_meshes_recursive(coll, targets)
     targets = list({o.name: o for o in targets}.values())
     print(f"  collected {len(targets)} unique meshes")
     poly_before = sum(len(o.data.polygons) for o in targets)
