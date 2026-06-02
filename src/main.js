@@ -70,7 +70,8 @@ scene.add(modelRoot);
 const layerManager = new LayerManager();
 layerManager.addAllTo(modelRoot);
 
-const REAL_MODEL_URL = '/models/brain.glb'; // Z-Anatomy 匯出：Brain collection only
+// 用 BASE_URL 處理 GitHub Pages 部署路徑（dev: '/', prod: '/edu-platform/'）
+const REAL_MODEL_URL = `${import.meta.env.BASE_URL}models/brain.glb`;
 
 async function tryLoadRealModel(url) {
   // Vite dev server SPA-fallbacks unknown URLs to index.html (HTTP 200),
