@@ -20,6 +20,7 @@ import { ClippingController } from './clipping.js';
 import { createOrientationEyes } from './orientationCue.js';
 import { ExplodeController, buildExplodePanel } from './explode.js';
 import { OrganNavigator, buildOrganNavBar } from './organNav.js';
+import { createHeartVessels } from './heartVessels.js';
 import { makeDraggable } from './draggable.js';
 
 const canvas = document.getElementById('scene');
@@ -195,15 +196,25 @@ async function loadAnatomy() {
       opacity: 1,
     });
     if (heartWrapper) {
-      // 放進 nerve layer（預設 visible），vessel layer 預設 hidden 會把 heart wrapper 一起遮掉
+      // 放進 nerve layer（預設 visible）
       layerManager.registerMesh('nerve', heartWrapper);
+      // 心臟改為常駐顯示：拿掉 kind='organ' 讓 PathwayPlayer.stop 不會自動隱藏；
+      // 並把 visible 設 true（loadOrganMesh 預設 false 給單純 pathway-only 器官用）
+      heartWrapper.visible = true;
+      delete heartWrapper.userData.kind;
       // 把原本的 sphere marker 從 markers group 移走、改 markerMap 指向 wrapper。
-      // PathwayPlayer 用 markerMap.get('heart').position 算通路曲線端點 →
-      // wrapper.position 就是端點；visible 切換也走 wrapper.visible。
       const sphereMarker = markerMap.get('heart');
       if (sphereMarker) sphereMarker.parent?.remove(sphereMarker);
       markerMap.set('heart', heartWrapper);
       console.info('[edu-platform] real heart attached, replacing sphere marker');
+
+      // ── 主要血管：心-腦連接管 ──
+      const vesselsGroup = createHeartVessels({
+        heartPosition: heartPos,
+        brainBox: window.__brainBbox ?? new THREE.Box3().setFromObject(real),
+      });
+      layerManager.registerMesh('nerve', vesselsGroup);
+      console.info('[edu-platform] heart-brain vessels created:', vesselsGroup.children.length);
     }
   }
 
@@ -272,15 +283,7 @@ async function loadAnatomy() {
         if (!h) return null;
         return { center: h.position.clone(), distance: 1.3 };
       },
-      onFocus: () => {
-        const h = markerMap.get('heart');
-        if (h) h.visible = true;
-      },
-      onLeave: () => {
-        // 通路沒在播時才隱藏（通路自己管 visibility）
-        const h = markerMap.get('heart');
-        if (h && !pathwayPlayer?.active) h.visible = false;
-      },
+      // heart 已常駐顯示（與血管視覺連接），不需要 onFocus/onLeave 切顯隱
     },
     {
       id: 'spinal-cord',

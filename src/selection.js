@@ -43,10 +43,11 @@ export class SelectionController {
   }
 
   _collectCandidates() {
+    // 只接收有 primary structureId 的 mesh — structureIds-only（如血管）不算點選候選
     const out = [];
     const walk = (obj) => {
       if (!obj.visible) return;
-      if (obj.isMesh && (obj.userData.structureId || obj.userData.structureIds)) out.push(obj);
+      if (obj.isMesh && obj.userData.structureId) out.push(obj);
       for (const c of obj.children) walk(c);
     };
     walk(this.scene);
