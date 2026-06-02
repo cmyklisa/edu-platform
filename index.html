@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>神經系統互動 3D 教學</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene"></canvas>
+
+      <header class="topbar">
+        <h1>神經系統互動 3D 教學</h1>
+        <span class="phase-tag">階段 ⑤ — 剖面切片</span>
+      </header>
+
+      <div id="loading" class="loading">載入模型中…</div>
+
+      <aside id="layer-panel" class="layer-panel panel"></aside>
+      <aside id="pathway-panel" class="pathway-panel panel"></aside>
+      <aside id="pathway-desc-panel" class="pathway-desc-panel panel" hidden></aside>
+      <aside id="clip-panel" class="clip-panel panel"></aside>
+      <aside id="info-panel" class="info-panel" hidden></aside>
+      <div id="tooltip" class="tooltip" hidden></div>
+
+      <aside class="hints">
+        <p><strong>操作：</strong></p>
+        <ul>
+          <li>拖曳：旋轉 / 滾輪：縮放 / 右鍵：平移</li>
+          <li>點結構標記 → 跳說明；點通路按鈕 → 播放</li>
+          <li><kbd>R</kbd> 重設視角 / <kbd>Esc</kbd> 取消 / 停通路</li>
+        </ul>
+      </aside>
+
+      <footer class="credits">
+        <span>資料來源（待接入）：Z-Anatomy (CC BY-SA 4.0)、BodyParts3D © The Database Center for Life Science (CC BY-SA 2.1 Japan)</span>
+        <span class="placeholder-warn">目前為佔位模型（procedural placeholder），真實 glTF 資產將在後續階段匯入。</span>
+      </footer>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

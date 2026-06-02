@@ -1,0 +1,14 @@
+[
+  {
+    "id": "fear-freeze",
+    "name": "恐懼 / 凍結反應",
+    "description": "面對威脅時，杏仁核迅速辨識並激發中腦的 PAG，PAG 進一步啟動腦幹的延腦自主神經中樞，輸出訊號讓心率上升、血壓升高、肌肉緊繃，準備戰、逃或凍結的反應。",
+    "nodes": ["threat-stimulus", "amygdala", "pag", "medulla", "heart"]
+  },
+  {
+    "id": "somatosensory",
+    "name": "觸覺感覺通路",
+    "description": "皮膚與肌肉接收到的觸覺、溫覺、痛覺與本體感訊號，沿脊髓上行至視丘中繼，再投射到頂葉的初級體感皮質，形成可被意識覺察的感覺。",
+    "nodes": ["spinal-cord", "thalamus", "parietal-lobe"]
+  }
+]

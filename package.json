@@ -1,0 +1,18 @@
+{
+  "name": "edu-platform",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "互動 3D 神經系統教學工具",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10"
+  }
+}
