@@ -92,6 +92,7 @@ const REAL_MUSCLES_URL  = `${BASE}models/muscles.glb`;
 const REAL_SKIN_URL     = `${BASE}models/skin.glb`;
 const REAL_NERVES_URL   = `${BASE}models/nerves.glb`;
 const REAL_SYMP_URL     = `${BASE}models/sympathetic.glb`;
+const REAL_CN_URL       = `${BASE}models/cranial-nerves.glb`;  // 12 對腦神經
 
 // 共享 Draco loader — 多個 GLB 載入只下載一次 decoder wasm
 const _shared_draco = new DRACOLoader();
@@ -172,6 +173,10 @@ async function loadAnatomy() {
     await loadAlignedLayer(REAL_NERVES_URL,  'nerve',  { scaleFactor, center, color: 0xf8d758, opacity: 0.95 });
     // 交感神經幹（autonomic chain，沿脊髓兩側）— 獨立 sympathetic layer，預設隱藏
     await loadAlignedLayer(REAL_SYMP_URL,    'sympathetic', { scaleFactor, center, color: 0xa6e7ff, opacity: 1 });
+    // 12 對腦神經（含視神經、迷走神經…）— 在 nerve layer
+    const cnGroup = await loadAlignedLayer(REAL_CN_URL,  'nerve', { scaleFactor, center, color: 0xa0e8a0, opacity: 1 });
+    // 對腦神經 mesh 做 structureId tag（依名稱關鍵字），讓點選能跳對應資訊面板
+    if (cnGroup) tagBrainMeshes(cnGroup);
     await loadAlignedLayer(REAL_MUSCLES_URL, 'muscle', { scaleFactor, center, color: 0xc14a40, opacity: 0.95 });
     await loadAlignedLayer(REAL_SKIN_URL,    'skin',   { scaleFactor, center, color: 0xe8b59a, opacity: 1 });
     // 把程序化皮膚紋路套到所有 skin material（雜訊 + 色斑 + 毛孔）
@@ -276,8 +281,8 @@ async function loadAnatomy() {
     const skinGroup = layerManager.getGroup('skin');
     const orbital = skinGroup.children.length ? findOrbitalCenters(skinGroup) : null;
     if (orbital) {
-      orbital.left.z  += 0.02;  // 略往前推到皮膚外側
-      orbital.right.z += 0.02;
+      orbital.left.z  -= 0.04;  // 往內塞進眼眶 (~1 cm)
+      orbital.right.z -= 0.04;
       const eyeRadius = Math.max(0.025, orbital.left.distanceTo(orbital.right) * 0.14);
       scene.add(createOrientationEyes({
         leftPos: orbital.left, rightPos: orbital.right, radius: eyeRadius,

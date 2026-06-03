@@ -9,6 +9,23 @@
 // 但點 frontal-lobe marker 時 orbital_part 也會跟著亮（Set 含 frontal-lobe）。
 
 export const STRUCTURE_MESH_PATTERNS = {
+  // ── 12 對腦神經（先比對，避免被 brainstem 廣詞攔截）
+  'cn-1-olfactory':         ['olfactory_nerve', 'olfactory_bulb', 'olfactory_tract'],
+  'cn-2-optic':             ['optic_nerve'],
+  'cn-3-oculomotor':        ['oculomotor_nerve'],
+  'cn-4-trochlear':         ['trochlear_nerve'],
+  'cn-5-trigeminal':        ['trigeminal_nerve', 'ophthalmic_nerve', 'maxillary_nerve',
+                             'mandibular_nerve', 'inferior_alveolar', 'lingual_nerve',
+                             'buccal_nerve', 'mental_nerve', 'mylohyoid', 'auriculotemporal',
+                             'meningeal_branch_of_maxillary'],
+  'cn-6-abducens':          ['abducens_nerve'],
+  'cn-7-facial':            ['facial_nerve'],
+  'cn-8-vestibulocochlear': ['vestibulocochlear', 'vestibular_nerve', 'cochlear_nerve'],
+  'cn-9-glossopharyngeal':  ['glossopharyngeal'],
+  'cn-10-vagus':            ['vagus_nerve'],
+  'cn-11-accessory':        ['accessory_nerve'],
+  'cn-12-hypoglossal':      ['hypoglossal'],
+
   // ── 具體深部結構（最優先匹配，primary 就是自己）
   'amygdala':           ['amygdal'],
   'hippocampus':        ['hippocampus', 'parahippocampal'],

@@ -30,6 +30,8 @@ JOBS = [
                               "sympathetic.glb", 0.5),
     # 全身骨骼（含顱骨）— 大檔，多 decimate 控制大小
     ("Skeletal system",       "skeleton.glb", 0.20),
+    # 12 對腦神經（從腦幹延伸出去：嗅、視、動眼、滑車、三叉、外展、顏面、前庭蝸、舌咽、迷走、副、舌下）
+    ("Cranial nerves",        "cranial-nerves.glb", 0.5),
 ]
 
 MIN_POLYS_TO_DECIMATE = 200

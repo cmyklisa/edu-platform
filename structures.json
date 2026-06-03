@@ -289,6 +289,229 @@
     ]
   },
   {
+    "id": "cn-1-olfactory",
+    "name_zh": "嗅神經（I）",
+    "name_la": "Nervus olfactorius",
+    "system": "cranial-nerve",
+    "markerPosition": [
+      0.0,
+      -0.13,
+      0.4
+    ],
+    "meshName": null,
+    "function_zh": "唯一不經過視丘中繼就直接投射到大腦皮質的特殊感覺神經。從鼻腔嗅黏膜的嗅神經元出發，穿過篩骨篩板進入顱腔，連到嗅球，再傳到顳葉內側的嗅皮質與杏仁核——這也是為什麼氣味會強烈喚起情緒記憶（普魯斯特效應）。頭部外傷導致篩板撕裂是最常見的後天嗅覺喪失原因。",
+    "diseases_zh": [
+      "嗅覺喪失 (anosmia)",
+      "頭部外傷",
+      "COVID-19 嗅覺異常",
+      "巴金森氏症早期"
+    ]
+  },
+  {
+    "id": "cn-2-optic",
+    "name_zh": "視神經（II）",
+    "name_la": "Nervus opticus",
+    "system": "cranial-nerve",
+    "markerPosition": [
+      0.0,
+      -0.08,
+      0.2
+    ],
+    "meshName": null,
+    "function_zh": "視網膜神經節細胞的軸突束組成，把光訊號送進腦。雙側視神經在視交叉（optic chiasm）部分交叉——只有來自視野內側（鼻側）的纖維跨到對側，所以左視野完全由右腦處理。視神經發炎（多發性硬化症的早期症狀）會造成短暫單眼視力喪失與動眼疼痛。",
+    "diseases_zh": [
+      "視神經炎",
+      "青光眼",
+      "視乳頭水腫",
+      "多發性硬化症"
+    ]
+  },
+  {
+    "id": "cn-3-oculomotor",
+    "name_zh": "動眼神經（III）",
+    "name_la": "Nervus oculomotorius",
+    "system": "cranial-nerve",
+    "markerPosition": [
+      0.04,
+      -0.15,
+      0.05
+    ],
+    "meshName": null,
+    "function_zh": "從中腦腳間窩出發，控制六條眼外肌中的四條（內直肌、上下直肌、下斜肌）、上眼瞼提肌，並透過副交感纖維控制瞳孔縮小與晶狀體調節（看近物變焦）。動眼神經麻痺典型表現：眼瞼下垂、瞳孔散大、眼球外下方偏（「down and out」）。糖尿病的微血管病變是常見原因。",
+    "diseases_zh": [
+      "動眼神經麻痺",
+      "糖尿病性麻痺",
+      "後交通動脈瘤",
+      "顱內壓升高"
+    ]
+  },
+  {
+    "id": "cn-4-trochlear",
+    "name_zh": "滑車神經（IV）",
+    "name_la": "Nervus trochlearis",
+    "system": "cranial-nerve",
+    "markerPosition": [
+      0.0,
+      -0.1,
+      -0.1
+    ],
+    "meshName": null,
+    "function_zh": "12 對腦神經中唯一從腦幹「背側」發出的，也是最纖細的。控制上斜肌（眼球向下向內看，例如看鼻尖）。麻痺時上斜肌無力，病人會出現往健側傾頭來代償，且有複視（往下走樓梯特別困難）。頭部外傷（特別是減速性傷害）容易傷到滑車神經。",
+    "diseases_zh": [
+      "滑車神經麻痺",
+      "頭部減速傷",
+      "先天性發育不全"
+    ]
+  },
+  {
+    "id": "cn-5-trigeminal",
+    "name_zh": "三叉神經（V）",
+    "name_la": "Nervus trigeminus",
+    "system": "cranial-nerve",
+    "markerPosition": [
+      0.16,
+      -0.16,
+      0.05
+    ],
+    "meshName": null,
+    "function_zh": "最大的腦神經，分三支（眼支 V1、上頜支 V2、下頜支 V3），負責整個臉部的感覺以及咀嚼肌的運動控制。三叉神經痛（tic douloureux）是出名的「最痛的疾病之一」：發作時臉部一側出現電擊般劇痛，常由咀嚼、刷牙、風吹臉觸發。多數由血管壓迫神經根引起，可用 carbamazepine 或微血管減壓術治療。",
+    "diseases_zh": [
+      "三叉神經痛",
+      "皰疹後神經痛",
+      "多發性硬化症"
+    ]
+  },
+  {
+    "id": "cn-6-abducens",
+    "name_zh": "外展神經（VI）",
+    "name_la": "Nervus abducens",
+    "system": "cranial-nerve",
+    "markerPosition": [
+      0.04,
+      -0.24,
+      0.05
+    ],
+    "meshName": null,
+    "function_zh": "從橋腦延腦交界處發出，行程很長，控制外直肌（眼球外轉看耳朵那側）。麻痺時患側眼睛無法外轉，出現複視，且常被當作「顱內壓升高」的早期警訊——因為它在顱腔內走得太遠，容易被腦壓擠壓。也是 Wernicke 腦病（酒精性硫胺缺乏）的典型徵狀。",
+    "diseases_zh": [
+      "外展神經麻痺",
+      "顱內壓升高",
+      "Wernicke 腦病",
+      "糖尿病性麻痺"
+    ]
+  },
+  {
+    "id": "cn-7-facial",
+    "name_zh": "顏面神經（VII）",
+    "name_la": "Nervus facialis",
+    "system": "cranial-nerve",
+    "markerPosition": [
+      0.15,
+      -0.2,
+      0.0
+    ],
+    "meshName": null,
+    "function_zh": "從橋腦延腦交界發出，繞過顳骨內的曲折路徑進入面部，控制所有表情肌、淚腺與唾液腺（除了腮腺）、舌前 2/3 的味覺。貝爾氏麻痺（Bell palsy）是急性單側完全面神經麻痺，多數與 HSV-1 病毒再活化有關——患者半邊臉無法閉眼、無法抬眉、嘴角下垂，常合併味覺減退與聽覺過敏（鐙骨肌也由 CN VII 支配）。",
+    "diseases_zh": [
+      "貝爾氏麻痺 (Bell palsy)",
+      "Ramsay Hunt 症候群",
+      "聽神經瘤壓迫"
+    ]
+  },
+  {
+    "id": "cn-8-vestibulocochlear",
+    "name_zh": "前庭蝸神經（VIII）",
+    "name_la": "Nervus vestibulocochlearis",
+    "system": "cranial-nerve",
+    "markerPosition": [
+      0.18,
+      -0.22,
+      0.0
+    ],
+    "meshName": null,
+    "function_zh": "由前庭神經（傳遞平衡）與耳蝸神經（傳遞聽覺）合併而成。從內耳的耳蝸與半規管出發，與顏面神經一起走到橋腦延腦交界進入腦幹。聽神經瘤（前庭神經鞘瘤）是這條神經最常見的腫瘤，典型症狀是單側漸進性聽力喪失與耳鳴；梅尼爾氏症則造成週期性眩暈、聽力下降與耳鳴的三聯徵。",
+    "diseases_zh": [
+      "梅尼爾氏症",
+      "聽神經瘤",
+      "前庭神經炎",
+      "感音性耳聾"
+    ]
+  },
+  {
+    "id": "cn-9-glossopharyngeal",
+    "name_zh": "舌咽神經（IX）",
+    "name_la": "Nervus glossopharyngeus",
+    "system": "cranial-nerve",
+    "markerPosition": [
+      0.13,
+      -0.3,
+      0.0
+    ],
+    "meshName": null,
+    "function_zh": "從延腦發出，主管舌後 1/3 的味覺與感覺、咽部感覺、頸動脈竇的血壓感受器、莖突咽肌的運動、腮腺的副交感分泌。受刺激引發嘔吐反射。舌咽神經痛雖罕見但極劇烈，疼痛位於耳深部、喉嚨、舌根，吞嚥或說話會觸發；頸動脈竇症候群則是按壓頸部會反射性引起暈厥。",
+    "diseases_zh": [
+      "舌咽神經痛",
+      "頸動脈竇症候群",
+      "後組腦神經麻痺"
+    ]
+  },
+  {
+    "id": "cn-10-vagus",
+    "name_zh": "迷走神經（X）",
+    "name_la": "Nervus vagus",
+    "system": "cranial-nerve",
+    "markerPosition": [
+      0.13,
+      -0.33,
+      0.0
+    ],
+    "meshName": null,
+    "function_zh": "「迷走」之名源於它路徑廣遠——是 12 對腦神經中走得最遠的，從延腦下行穿過頸、胸、腹腔，副交感支配所有內臟器官（心臟、肺、消化道直到結腸脾曲）。心臟的副交感調節幾乎完全靠它：刺激迷走神經會減慢心率與降血壓（迷走張力高即心率慢，運動員常見）。迷走神經電刺激術已用於治療頑固性癲癇、難治型憂鬱症與發炎性疾病。",
+    "diseases_zh": [
+      "心律失常",
+      "胃輕癱",
+      "迷走神經暈厥",
+      "Arnold–Chiari 畸形"
+    ]
+  },
+  {
+    "id": "cn-11-accessory",
+    "name_zh": "副神經（XI）",
+    "name_la": "Nervus accessorius",
+    "system": "cranial-nerve",
+    "markerPosition": [
+      0.1,
+      -0.4,
+      0.0
+    ],
+    "meshName": null,
+    "function_zh": "由延腦根與脊髓根（C1–C5）匯合形成，是少數有顯著脊髓起源的腦神經。控制胸鎖乳突肌（轉頭、傾頭）與斜方肌（聳肩、轉動肩胛骨）的運動。頸部淋巴結廓清手術中容易誤傷副神經，造成肩部下垂、抬肩困難。在解剖學上有時被認為應該獨立分類，因其運動性質與其他腦神經不同。",
+    "diseases_zh": [
+      "副神經損傷（手術併發症）",
+      "斜方肌癱瘓",
+      "翼狀肩胛"
+    ]
+  },
+  {
+    "id": "cn-12-hypoglossal",
+    "name_zh": "舌下神經（XII）",
+    "name_la": "Nervus hypoglossus",
+    "system": "cranial-nerve",
+    "markerPosition": [
+      0.05,
+      -0.33,
+      0.05
+    ],
+    "meshName": null,
+    "function_zh": "從延腦的前內側發出，純運動性，支配舌頭幾乎所有內外在肌（除腭舌肌由迷走支配）。麻痺時舌頭伸出會偏向患側（健側肌肉把舌頭推向無力側），萎縮並出現顫動。雙側舌下神經損傷會造成嚴重吞嚥困難與構音障礙。常見於頸動脈剝離、外傷或腦幹梗塞。",
+    "diseases_zh": [
+      "舌下神經麻痺",
+      "頸動脈剝離",
+      "外側延腦症候群",
+      "ALS"
+    ]
+  },
+  {
     "id": "threat-stimulus",
     "name_zh": "威脅刺激",
     "name_la": "(External stimulus)",

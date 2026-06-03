@@ -430,6 +430,7 @@ html, body, #app {
 .system-brainstem  { background: rgba(255,154,85,0.14);  color: #ffbe8c; border-color: rgba(255,154,85,0.40); }
 .system-cerebellum { background: rgba(128,214,139,0.14); color: #aee6b5; border-color: rgba(128,214,139,0.40); }
 .system-spinal     { background: rgba(84,209,214,0.14);  color: #8be0e6; border-color: rgba(84,209,214,0.40); }
+.system-cranial-nerve { background: rgba(160,232,160,0.14); color: #b9eebd; border-color: rgba(160,232,160,0.45); }
 .system-stimulus   { background: rgba(255,90,90,0.14);   color: #ff9c9c; border-color: rgba(255,90,90,0.40); }
 .system-organ      { background: rgba(255,138,168,0.14); color: #ffb1c4; border-color: rgba(255,138,168,0.40); }
 .placeholder-tag {
