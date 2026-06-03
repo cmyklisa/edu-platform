@@ -83,7 +83,8 @@ layerManager.addAllTo(modelRoot);
 // 用 BASE_URL 處理 GitHub Pages 部署路徑（dev: '/', prod: '/edu-platform/'）
 const BASE = import.meta.env.BASE_URL;
 const REAL_MODEL_URL    = `${BASE}models/brain.glb`;
-const REAL_SKULL_URL    = `${BASE}models/skull.glb`;
+const REAL_SKULL_URL    = `${BASE}models/skull.glb`;        // 頭骨（保留 fallback）
+const REAL_SKELETON_URL = `${BASE}models/skeleton.glb`;     // 全身骨骼（含顱骨）
 const REAL_VESSELS_URL  = `${BASE}models/vessels.glb`;
 const REAL_HEART_URL    = `${BASE}models/heart.glb`;
 const REAL_SPINAL_URL   = `${BASE}models/spinal.glb`;
@@ -158,7 +159,13 @@ async function loadAnatomy() {
       'origSize=', size.toFixed(3));
 
     // ── 對齊載入其他 Z-Anatomy 圖層（同 scale + center）
-    await loadAlignedLayer(REAL_SKULL_URL,   'bone',   { scaleFactor, center, color: 0xece1c6, opacity: 0.92 });
+    // 骨骼：優先載全身 skeleton.glb（含顱骨）；不存在時 fallback 用 skull.glb
+    const skeletonLoaded = await loadAlignedLayer(REAL_SKELETON_URL, 'bone',
+      { scaleFactor, center, color: 0xece1c6, opacity: 0.92 });
+    if (!skeletonLoaded) {
+      await loadAlignedLayer(REAL_SKULL_URL, 'bone',
+        { scaleFactor, center, color: 0xece1c6, opacity: 0.92 });
+    }
     await loadAlignedLayer(REAL_VESSELS_URL, 'vessel', { scaleFactor, center, color: 0xff5a4a, opacity: 1 });
     await loadAlignedLayer(REAL_SPINAL_URL,  'nerve',  { scaleFactor, center, color: 0xf3e08a, opacity: 1 });
     // 周邊神經網絡（脊神經，含交感+體感）— 在 nerve layer

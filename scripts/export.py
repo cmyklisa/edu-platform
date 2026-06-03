@@ -28,18 +28,46 @@ JOBS = [
     # 交感神經幹（Sympathetic trunk）+ 胸腰段自主神經，沿脊髓兩側分布
     (["Sympathetic trunk", "Thoracolumbar part of autonomic division"],
                               "sympathetic.glb", 0.5),
+    # 全身骨骼（含顱骨）— 大檔，多 decimate 控制大小
+    ("Skeletal system",       "skeleton.glb", 0.20),
 ]
 
 MIN_POLYS_TO_DECIMATE = 200
 OUTPUT_DIR = "/tmp/edu-export"
 
 
-def collect_meshes_recursive(coll, out):
+def collect_meshes_recursive(coll, out, include_curves=True):
+    """收集 MESH。如果 include_curves，把 CURVE 透過 depsgraph 評估後轉成新 mesh
+    （Z-Anatomy 的神經幹是有 bevel 的 curve，視覺上是細管，必須轉成 mesh 才能匯出 glTF）。
+    """
     for obj in coll.objects:
         if obj.type == 'MESH':
             out.append(obj)
+        elif include_curves and obj.type == 'CURVE':
+            new_obj = _curve_to_mesh(obj)
+            if new_obj is not None:
+                out.append(new_obj)
     for child in coll.children:
-        collect_meshes_recursive(child, out)
+        collect_meshes_recursive(child, out, include_curves)
+
+
+def _curve_to_mesh(curve_obj):
+    """把單一 CURVE 物件（含 bevel）烘成新的 MESH 物件，連進當前 scene。失敗回 None。"""
+    try:
+        deps = bpy.context.evaluated_depsgraph_get()
+        eval_obj = curve_obj.evaluated_get(deps)
+        mesh_data = bpy.data.meshes.new_from_object(eval_obj)
+        if mesh_data is None or len(mesh_data.vertices) == 0:
+            if mesh_data is not None:
+                bpy.data.meshes.remove(mesh_data)
+            return None
+        new_obj = bpy.data.objects.new(curve_obj.name + '_baked', mesh_data)
+        new_obj.matrix_world = curve_obj.matrix_world.copy()
+        bpy.context.scene.collection.objects.link(new_obj)
+        return new_obj
+    except Exception as e:
+        print(f"  ! curve→mesh failed for '{curve_obj.name}': {e}")
+        return None
 
 
 def apply_decimate(obj, ratio):
