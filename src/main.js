@@ -356,21 +356,31 @@ async function loadAnatomy() {
   buildOrganNavBar(organNavEl, organNav, organs);
   makeDraggable(organNavEl);
 
-  // 註冊神經脈衝動畫目標：脊神經（nerves.glb）+ 交感神經幹（sympathetic.glb）
+  // 神經脈衝動畫：只註冊交感神經（其他圖層平常不閃爍，只有選取/通路時才高亮）。
+  // 預設 enabled = false，等使用者按頂端「啟動交感神經」按鈕。
   if (real) {
-    const nervesGroup = layerManager.getGroup('nerve');
-    // 只動畫 nerves.glb 載入的部分（root name 包含 'Scene' 但有許多子 mesh）
-    // 簡單做法：對整個 nerve layer 註冊，但跳過 brain/marker（brain 已被 colorize 改 emissive，
-    // 且 isMarker/structureIds 等已 tag）
-    // 改成：明確找 nerves.glb 與 sympathetic 對應的 Scene group
-    for (const c of nervesGroup.children) {
-      if (c.userData.isBrainMesh) continue;          // brain.glb，colorize 已套，不脈衝
-      if (c.userData.isHeartProxy || c.userData.isOrgan) continue;
-      if (c.name === 'structure_markers' || c.name === 'heart_brain_vessels') continue;
-      nervePulse.registerGroup(c, { phaseAxis: 'y', posScale: 5 });
-    }
     nervePulse.registerGroup(layerManager.getGroup('sympathetic'), { phaseAxis: 'y', posScale: 8 });
-    console.info('[edu-platform] nerve pulse animation targets:', nervePulse.targets.length);
+    console.info('[edu-platform] nerve pulse targets (sympathetic only):', nervePulse.targets.length);
+  }
+
+  // 「啟動交感神經」按鈕（topbar 內）：toggle 脈衝動畫，並自動把 sympathetic 層切顯示
+  const sympBtn = document.getElementById('symp-pulse-toggle');
+  if (sympBtn) {
+    const refresh = () => {
+      sympBtn.classList.toggle('active', nervePulse.enabled);
+      sympBtn.textContent = nervePulse.enabled ? '⚡ 停止脈衝' : '⚡ 啟動交感神經';
+    };
+    sympBtn.addEventListener('click', () => {
+      const next = !nervePulse.enabled;
+      nervePulse.setEnabled(next);
+      // 啟動時若交感神經層被隱藏，順便切顯示，否則看不到動畫
+      if (next && layerManager.get('sympathetic').state === 'hidden') {
+        layerManager.setState('sympathetic', 'visible');
+      }
+      refresh();
+    });
+    nervePulse.onChange(refresh);
+    refresh();
   }
 
   window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, nervePulse, camera, controls };

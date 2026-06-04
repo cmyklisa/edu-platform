@@ -15,6 +15,27 @@ export class NervePulseController {
     this.speed = speed;
     this.targets = [];
     this.time = 0;
+    this.enabled = false;          // 預設關閉，等使用者按鈕觸發
+    this._cleared = true;          // 標記目前是否已把 intensity 清成 0
+    this.listeners = new Set();
+  }
+
+  setEnabled(v) {
+    this.enabled = !!v;
+    if (!this.enabled) this._writeIntensity(0);   // 立刻熄掉
+    this._cleared = !this.enabled;
+    for (const fn of this.listeners) fn(this);
+  }
+
+  onChange(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
+
+  _writeIntensity(value) {
+    for (const { mesh } of this.targets) {
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      for (const m of mats) {
+        if (m.emissiveIntensity !== undefined) m.emissiveIntensity = value;
+      }
+    }
   }
 
   // 註冊一個 group 內所有 mesh 為脈衝目標。phaseAxis 控制脈衝沿哪個軸流動：
@@ -48,11 +69,19 @@ export class NervePulseController {
 
   update(dt) {
     if (!this.targets.length) return;
+    if (!this.enabled) {
+      // 確保 intensity 一直留在 0（避免上一次啟用後殘留值）
+      if (!this._cleared) {
+        this._writeIntensity(0);
+        this._cleared = true;
+      }
+      return;
+    }
+    this._cleared = false;
     this.time += dt;
     const t = this.time * this.speed;
     for (const { mesh, phase } of this.targets) {
       const wave = Math.sin(t + phase);
-      // 0..1 範圍，主要在波峰時亮起
       const intensity = 0.10 + 0.55 * Math.max(0, wave);
       const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
       for (const m of mats) {
