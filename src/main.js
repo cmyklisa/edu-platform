@@ -347,9 +347,30 @@ async function loadAnatomy() {
       id: 'spinal-cord',
       label: '脊髓',
       getTarget: () => {
+        // 優先用真實 spinal.glb 的 bbox（在 nerve layer 內）
+        const nerveGroup = layerManager.getGroup('nerve');
+        const spinalBox = new THREE.Box3();
+        const tmpBox = new THREE.Box3();
+        nerveGroup.traverse(o => {
+          if (!o.isMesh || !o.name) return;
+          const n = o.name.toLowerCase();
+          // 'spinal cord' 或 'cord_of_spinal' 等，排除 spinal nerve / 周邊神經
+          if ((n.includes('spinal_cord') || n.includes('cord_of_spinal'))
+              && !n.includes('nerve')) {
+            tmpBox.setFromObject(o);
+            spinalBox.union(tmpBox);
+          }
+        });
+        if (!spinalBox.isEmpty()) {
+          return {
+            center: spinalBox.getCenter(new THREE.Vector3()),
+            distance: spinalBox.getSize(new THREE.Vector3()).length() * 1.6,
+          };
+        }
+        // Fallback：marker 位置
         const m = markerMap.get('spinal-cord');
         if (!m) return null;
-        return { center: m.position.clone(), distance: 1.0 };
+        return { center: m.position.clone(), distance: 1.2 };
       },
     },
   ];
@@ -383,7 +404,7 @@ async function loadAnatomy() {
     refresh();
   }
 
-  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, nervePulse, camera, controls };
+  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, nervePulse, quiz, camera, controls };
   console.info('[edu-platform] markers created:', markerMap.size);
 
   fitCameraToObject(modelRoot);
@@ -494,20 +515,15 @@ function computeAnatomyBbox(root) {
 function fitCameraToObject(object) {
   object.updateMatrixWorld(true);
 
-  // 優先用 head bbox（腦 + 顱骨）做緊湊框景；周邊神經延伸到全身，但預設只看頭。
-  let box;
-  if (window.__headBbox && !window.__headBbox.isEmpty()) {
-    box = window.__headBbox.clone();
-  } else {
-    box = new THREE.Box3();
-    const meshBox = new THREE.Box3();
-    object.traverseVisible(o => {
-      if (o.isMesh && !o.userData.isMarker) {
-        meshBox.setFromObject(o);
-        box.union(meshBox);
-      }
-    });
-  }
+  // 框景到全身可見 mesh（從頭到腳全部看得到）
+  const box = new THREE.Box3();
+  const meshBox = new THREE.Box3();
+  object.traverseVisible(o => {
+    if (o.isMesh && !o.userData.isMarker) {
+      meshBox.setFromObject(o);
+      box.union(meshBox);
+    }
+  });
   if (box.isEmpty()) return;
   const size = box.getSize(new THREE.Vector3()).length();
   const center = box.getCenter(new THREE.Vector3());
@@ -515,8 +531,9 @@ function fitCameraToObject(object) {
   controls.target.copy(center);
   defaultTarget.copy(center);
 
-  const dist = size * 1.4;
-  const dir = new THREE.Vector3(0, 0.25, 1).normalize();
+  // 從頭到腳框景；視線稍微水平（dir.y 偏小）+ 距離加大，避免被裁切到
+  const dist = size * 1.9;
+  const dir = new THREE.Vector3(0, 0.05, 1).normalize();
   camera.position.copy(center.clone().add(dir.multiplyScalar(dist)));
   defaultCameraPos.copy(camera.position);
 
