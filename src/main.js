@@ -26,6 +26,7 @@ import { OrganNavigator, buildOrganNavBar } from './organNav.js';
 import { createHeartVessels } from './heartVessels.js';
 import { QuizController, buildQuizToggle } from './quiz.js';
 import { makeDraggable } from './draggable.js';
+import { mergeStaticLayer, ensureFrustumCulling, freezeStaticLayer } from './perf.js';
 
 const canvas = document.getElementById('scene');
 const loadingEl = document.getElementById('loading');
@@ -467,6 +468,39 @@ async function loadAnatomy() {
     nervePulse.onChange(refresh);
     refresh();
   }
+
+  // ── 效能優化：合併不可點擊的靜態圖層 → 大幅減少 draw call ──
+  //   skin/muscle/bone/vessel 沒有 per-mesh structureId，可安全合併。
+  //   brain/cranial-nerves/sympathetic/viscera/nerves 保留 per-mesh 以維持點選/高亮。
+  let mergeReport = {};
+  for (const layerId of ['skin', 'muscle', 'bone', 'vessel']) {
+    const g = layerManager.getGroup(layerId);
+    const before = countMeshes(g);
+    const n = mergeStaticLayer(g, { name: layerId });
+    const after = countMeshes(g);
+    mergeReport[layerId] = { before, after, mergedBuckets: n };
+    if (n > 0) freezeStaticLayer(g);
+  }
+  // 重新註冊合併後 mesh 的原始 opacity，讓 LayerManager 後續 setState 能對它生效
+  for (const layerId of ['skin', 'muscle', 'bone', 'vessel']) {
+    const g = layerManager.getGroup(layerId);
+    g.traverse(child => {
+      if (!child.isMesh) return;
+      const mats = Array.isArray(child.material) ? child.material : [child.material];
+      for (const mat of mats) {
+        if (!mat.userData._origCaptured) {
+          mat.userData._origCaptured = true;
+          mat.userData._origOpacity = mat.opacity;
+          mat.userData._origTransparent = mat.transparent;
+          mat.userData._origDepthWrite = mat.depthWrite;
+        }
+      }
+    });
+  }
+  // 確保 frustum culling 對全場 mesh 都生效（boundingSphere 都算出來）
+  const culledCount = ensureFrustumCulling(scene);
+  console.info('[edu-platform] perf merge report:', JSON.stringify(mergeReport));
+  console.info('[edu-platform] frustum culling enabled on', culledCount, 'meshes');
 
   window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, nervePulse, quiz, camera, controls, modelScaler };
   console.info('[edu-platform] markers created:', markerMap.size);
