@@ -16,7 +16,7 @@ export function buildInfoPanel(container, { onClose } = {}) {
     const isPlaceholder = !s.meshName; // 無真實 mesh → 標記為示意位置
     const diseases = Array.isArray(s.diseases_zh) ? s.diseases_zh : null;
     container.innerHTML = `
-      <header class="info-panel-header">
+      <header class="info-panel-header draggable-handle">
         <div class="info-titles">
           <h2>${s.name_zh}</h2>
           <p class="latin">${s.name_la}</p>

@@ -49,6 +49,18 @@
   - Y-up + Draco
   - 結果：17 mesh，28.5k polygons，212 KB
 
+### `public/models/viscera.glb`
+- **來源**：Z-Anatomy（CC BY-SA 4.0）`Startup.blend` 中以下器官 mesh：
+  Lungs（5 葉）、Liver、Kidney（雙側）、Stomach、Duodenum/Jejunum、Colon/Vermiform appendix、Spleen、Pancreas、Suprarenal gland（雙側）
+- **衍生工具**：`scripts/export_viscera.py`（Blender 5.1，headless）
+- **修改**：
+  - 以 object-name 白名單過濾 mesh（排除動脈、靜脈、淋巴結等非器官結構）
+  - Curve 物件（如 Jejunum）以 depsgraph 烘成 mesh
+  - 重新命名為 `organ_<id>__NN` 便於前端 structureId 對應
+  - Decimate ratio 0.4 後 apply
+  - Y-up + Draco
+  - 結果：20 unique mesh，~21k polygons，0.36 MB
+
 ### `scripts/export.py` 與 `scripts/inspect_blend.py`
 - 衍生自 Z-Anatomy 上游資料，本身為使用 Blender Python API 的描述性程式碼
 - 以 MIT 授權釋出（與本 repo 程式碼相同），但其產出（上述 GLB）採 CC BY-SA 4.0

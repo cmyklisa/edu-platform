@@ -752,42 +752,15 @@ html, body, #app {
   line-height: 1.45;
 }
 
-/* ── Explode panel ────────────────────────────────────────────────────── */
-.explode-panel {
-  position: absolute;
-  top: 480px;
-  right: 14px;
-  width: 270px;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  backdrop-filter: blur(8px);
-  font-size: 12px;
-  z-index: 2;
-  transition: max-height 0.25s ease;
-  max-height: 220px;
-  overflow: hidden;
+/* ── View tab (model scale + explode sliders) ─────────────────────────── */
+.view-section {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed rgba(255,255,255,0.08);
 }
-.explode-panel.collapsed { max-height: 36px; }
-.explode-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-.explode-panel h2 {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-.explode-collapse {
-  background: transparent; border: none; color: var(--muted);
-  font-size: 14px; cursor: pointer; padding: 2px 6px; border-radius: 4px;
-}
-.explode-collapse:hover { background: rgba(255,255,255,0.06); color: var(--fg); }
-.explode-slider {
+.view-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.view-slider {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
@@ -795,20 +768,26 @@ html, body, #app {
   font-size: 11.5px;
   margin-bottom: 8px;
 }
-.explode-slider input[type="range"] {
+.view-slider input[type="range"] {
   width: 100%;
   accent-color: var(--accent);
   cursor: pointer;
 }
-.explode-slider-label { color: var(--muted); white-space: nowrap; }
-.explode-value {
+.view-slider-label { color: var(--muted); white-space: nowrap; }
+.view-value {
   font-variant-numeric: tabular-nums;
   color: var(--accent);
   font-size: 11px;
-  min-width: 38px;
+  min-width: 42px;
   text-align: right;
 }
-.explode-reset {
+
+.view-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.view-reset {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.10);
   color: var(--fg);
@@ -817,14 +796,14 @@ html, body, #app {
   border-radius: 5px;
   cursor: pointer;
   font-family: inherit;
-  margin-bottom: 6px;
+  flex-shrink: 0;
 }
-.explode-reset:hover { background: rgba(255,255,255,0.08); }
-.explode-hint {
-  margin: 4px 0 0;
+.view-reset:hover { background: rgba(255,255,255,0.08); }
+
+.view-hint-inline {
   color: var(--muted);
   font-size: 10.5px;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 .pathway-panel-header {
@@ -936,55 +915,93 @@ kbd {
 }
 
 @media (max-width: 640px) {
-  .topbar h1 { font-size: 15px; }
+  /* ── Topbar：標題縮、按鈕緊湊 ── */
+  .topbar {
+    padding: 8px 10px;
+    gap: 6px;
+    align-items: center;
+  }
+  .topbar h1 {
+    font-size: 14px;
+    flex: 1 1 100%;
+    margin-bottom: 4px;
+  }
+  .phase-tag { font-size: 10.5px; padding: 2px 7px; }
+  .symp-pulse-toggle, .quiz-toggle {
+    font-size: 11px;
+    padding: 5px 10px;
+    margin-left: 0;
+  }
+  .symp-pulse-toggle { margin-left: auto; }
+
+  /* hints / 工具提示在手機上沒空間 */
   .hints { display: none; }
-  .layer-panel {
-    width: auto;
-    left: 8px;
-    right: 8px;
-    top: 50px;
-    max-height: 36vh;
-    font-size: 11.5px;
-  }
-  .layer-panel.collapsed { max-height: 34px; }
-  .layer-states button { padding: 4px 6px; font-size: 10.5px; }
-  .pathway-panel {
-    width: auto;
-    left: 8px;
-    right: 8px;
-    bottom: 36px;
-    max-height: 28vh;
-    font-size: 11.5px;
-  }
-  .pathway-panel.collapsed { max-height: 34px; }
-  .pathway-desc-panel {
-    left: 8px;
-    right: 8px;
-    top: auto;
-    bottom: 200px;
-    width: auto;
-    max-height: 32vh;
-  }
-  .info-panel {
-    left: 8px;
-    right: 8px;
-    top: auto;
-    bottom: 36px;
-    width: auto;
-    max-height: 32vh;
-  }
-  .clip-panel {
-    left: 8px;
-    right: 8px;
-    top: auto;
-    bottom: 36vh;
-    width: auto;
-    max-height: 30vh;
-  }
   .tooltip { display: none; }
-  .credits {
-    font-size: 10px;
-    flex-direction: column;
-    gap: 4px;
+
+  /* ── 器官導航：top-center → 緊貼 topbar 下方，按鈕變小 ── */
+  .organ-nav {
+    top: 80px;
+    padding: 3px 4px;
+    gap: 2px;
+    max-width: calc(100vw - 16px);
   }
+  .organ-nav-body { gap: 2px; flex-wrap: wrap; justify-content: center; }
+  .organ-nav-btn {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  /* ── tools-panel：橫向滿寬、高度限縮上半，避免吃掉整個畫面 ── */
+  .tools-panel {
+    left: 6px;
+    right: 6px;
+    top: 118px;
+    width: auto;
+    max-height: 38vh;
+    font-size: 11.5px;
+  }
+  .tools-panel.collapsed { max-height: 38px; }
+  .tools-tab { font-size: 11px; padding: 6px 8px; }
+  .layer-states button { padding: 3px 5px; font-size: 10px; }
+
+  /* ── info-panel：底部抽屜，與 tools-panel 不重疊 ── */
+  .info-panel {
+    left: 6px;
+    right: 6px;
+    top: auto;
+    bottom: 6px;
+    width: auto;
+    max-height: 42vh;
+    padding: 10px 12px;
+  }
+
+  /* pathway 說明面板：位於 info-panel 上方（兩者通常不同時為主角） */
+  .pathway-desc-panel {
+    left: 6px;
+    right: 6px;
+    top: auto;
+    bottom: 6px;
+    width: auto;
+    max-height: 42vh;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+  }
+
+  /* 底部 credits 隱藏佔位警告，主行壓縮 */
+  .credits {
+    font-size: 9.5px;
+    padding: 4px 8px;
+    flex-direction: row;
+    gap: 4px;
+    background: rgba(11,16,32,0.55);
+  }
+  .credits span:first-child { display: none; }  /* 隱藏資料來源行，留警告 */
+  .placeholder-warn { font-size: 9.5px; }
+}
+
+/* 更小螢幕：把 placeholder-warn 也藏起來 */
+@media (max-width: 420px) {
+  .credits .placeholder-warn { display: none; }
+  .credits { display: none; }
+  .organ-nav-btn { font-size: 10.5px; padding: 4px 8px; }
+  .tools-panel { top: 110px; max-height: 36vh; }
 }

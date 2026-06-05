@@ -5,15 +5,18 @@
 import { buildLayerPanel } from './layers.js';
 import { buildPathwayPanel } from './pathwayPanel.js';
 import { buildClippingPanel } from './clipping.js';
+import { buildViewPanel } from './viewPanel.js';
 
 const TABS = [
   { id: 'layer',   label: '分層剝離' },
+  { id: 'view',    label: '視圖控制' },
   { id: 'pathway', label: '功能通路' },
   { id: 'clip',    label: '剖面切片' },
 ];
 
 export function buildToolsPanel(container, {
   layerManager, pathwayPlayer, pathwayDescContainer, clipping,
+  explodeCtrl, modelScaler,
 }) {
   let active = 'layer';
 
@@ -54,6 +57,10 @@ export function buildToolsPanel(container, {
       container.querySelector('[data-tabpane="clip"]'),
       clipping,
     );
+    buildViewPanel(
+      container.querySelector('[data-tabpane="view"]'),
+      { explodeCtrl, modelScaler },
+    );
   }
 
   function setActive(tabId) {
@@ -80,4 +87,11 @@ export function buildToolsPanel(container, {
   });
 
   renderShell();
+
+  // 手機版預設收合，避免一打開就吃掉模型視野
+  if (window.matchMedia('(max-width: 640px)').matches) {
+    container.classList.add('collapsed');
+    const cb = container.querySelector('.tools-collapse');
+    if (cb) cb.textContent = '▸';
+  }
 }

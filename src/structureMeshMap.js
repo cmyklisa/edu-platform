@@ -50,6 +50,18 @@ export const STRUCTURE_MESH_PATTERNS = {
   'prefrontal-cortex':  ['orbital_part', 'orbital_gyri', 'orbital_sulci',
                          'frontomarginal', 'frontopolar', 'gyrus_rectus'],
 
+  // ── 內臟器官（viscera.glb）— export_viscera.py 已把每個 mesh 重新命名為 organ_<id>__NN，
+  //    所以這裡只要比對 organ_<id> 前綴即可（穩定、不會被 glTF 命名衝突影響）。
+  'lung':            ['organ_lung'],
+  'liver':           ['organ_liver'],
+  'kidney':          ['organ_kidney'],
+  'stomach':         ['organ_stomach'],
+  'small-intestine': ['organ_small-intestine'],
+  'large-intestine': ['organ_large-intestine'],
+  'spleen':          ['organ_spleen'],
+  'pancreas':        ['organ_pancreas'],
+  'adrenal-gland':   ['organ_adrenal-gland'],
+
   // ── 大腦皮質葉（broad；會疊加到上面已 tag 的 mesh）
   // frontal-lobe 故意把 prefrontal 的關鍵字也納入，這樣點額葉時前額葉也跟著亮
   'frontal-lobe':       ['frontal', 'precentral', 'cingulate', 'paracentral',

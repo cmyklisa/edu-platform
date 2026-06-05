@@ -20,7 +20,8 @@ import { ClippingController } from './clipping.js';
 import { createOrientationEyes } from './orientationCue.js';
 import { createSkinTexture, findOrbitalCenters } from './skinTexture.js';
 import { NervePulseController } from './nervePulse.js';
-import { ExplodeController, buildExplodePanel } from './explode.js';
+import { ExplodeController } from './explode.js';
+import { buildViewPanel } from './viewPanel.js';
 import { OrganNavigator, buildOrganNavBar } from './organNav.js';
 import { createHeartVessels } from './heartVessels.js';
 import { QuizController, buildQuizToggle } from './quiz.js';
@@ -33,7 +34,6 @@ const organNavEl         = document.getElementById('organ-nav');
 const infoPanelEl        = document.getElementById('info-panel');
 const tooltipEl          = document.getElementById('tooltip');
 const pathwayDescPanelEl = document.getElementById('pathway-desc-panel');
-const explodePanelEl     = document.getElementById('explode-panel');
 
 const renderer = new THREE.WebGLRenderer({
   canvas, antialias: true, alpha: false, powerPreference: 'high-performance',
@@ -93,6 +93,7 @@ const REAL_SKIN_URL     = `${BASE}models/skin.glb`;
 const REAL_NERVES_URL   = `${BASE}models/nerves.glb`;
 const REAL_SYMP_URL     = `${BASE}models/sympathetic.glb`;
 const REAL_CN_URL       = `${BASE}models/cranial-nerves.glb`;  // 12 對腦神經
+const REAL_VISCERA_URL  = `${BASE}models/viscera.glb`;          // 肺/肝/腎/胃/腸/脾/胰/腎上腺
 
 // 共享 Draco loader — 多個 GLB 載入只下載一次 decoder wasm
 const _shared_draco = new DRACOLoader();
@@ -177,6 +178,49 @@ async function loadAnatomy() {
     const cnGroup = await loadAlignedLayer(REAL_CN_URL,  'nerve', { scaleFactor, center, color: 0xa0e8a0, opacity: 1 });
     // 對腦神經 mesh 做 structureId tag（依名稱關鍵字），讓點選能跳對應資訊面板
     if (cnGroup) tagBrainMeshes(cnGroup);
+    // 內臟器官：肺/肝/腎/胃/小腸/大腸/脾/胰/腎上腺。先用 placeholder 色匯入，再依
+    // structureId 重新上色（每個器官一個解剖近似色）。
+    const viscGroup = await loadAlignedLayer(REAL_VISCERA_URL, 'viscera',
+      { scaleFactor, center, color: 0xd58a8a, opacity: 0.95 });
+    if (viscGroup) {
+      // glTF 對多 material 的 mesh 會拆成多個 primitive，子 mesh 名稱會變 Mesh_N。
+      // 從 ancestor 名稱補回 organ_<id>__NN，讓 tagBrainMeshes 的 substring 比對能命中。
+      viscGroup.traverse(o => {
+        if (!o.isMesh || !o.name) return;
+        if (o.name.startsWith('organ_')) return;
+        let cur = o.parent;
+        while (cur) {
+          if (cur.name && cur.name.startsWith('organ_')) {
+            o.name = `${cur.name}__${o.name}`;
+            return;
+          }
+          cur = cur.parent;
+        }
+      });
+      tagBrainMeshes(viscGroup);
+      const ORGAN_COLORS = {
+        'lung':            0xff8a8a,
+        'liver':           0x8e4a30,
+        'kidney':          0x8a2e4a,
+        'stomach':         0xd58a8a,
+        'small-intestine': 0xd47a4e,
+        'large-intestine': 0xa86a4e,
+        'spleen':          0x5a1f1f,
+        'pancreas':        0xc6b870,
+        'adrenal-gland':   0xd8b078,
+      };
+      viscGroup.traverse(o => {
+        if (!o.isMesh || !o.material) return;
+        const sid = o.userData.structureId;
+        const hex = sid && ORGAN_COLORS[sid];
+        if (!hex) return;
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of mats) {
+          m.color.setHex(hex);
+          m.needsUpdate = true;
+        }
+      });
+    }
     await loadAlignedLayer(REAL_MUSCLES_URL, 'muscle', { scaleFactor, center, color: 0xc14a40, opacity: 0.95 });
     await loadAlignedLayer(REAL_SKIN_URL,    'skin',   { scaleFactor, center, color: 0xe8b59a, opacity: 1 });
     // 把程序化皮膚紋路套到所有 skin material（雜訊 + 色斑 + 毛孔）
@@ -300,19 +344,38 @@ async function loadAnatomy() {
   explodeCtrl = new ExplodeController({ root: modelRoot, brainCenter });
   explodeCtrl.build();
 
-  // ── 整合面板：分層 / 通路 / 剖面 三個 tab ──
+  // ── 模型整體縮放控制（slider 50%~150%，直接 setScalar 在 modelRoot 上）──
+  // 為了讓爆炸後恢復縮放、或縮放時爆炸 slider 仍正確，兩個操作各自寫不同 transform：
+  // - 爆炸：操作各 mesh 的 local position（在 modelRoot 內）
+  // - 縮放：操作 modelRoot.scale
+  // clipBbox 在 modelRoot 縮放後失準；slider 變動時重算 clipBbox（slider 用得不頻繁，
+  // 一次掃描代價可接受）。
+  const modelScaler = {
+    minPercent: 50,
+    maxPercent: 200,
+    _pct: 100,
+    getScalePercent() { return this._pct; },
+    setScalePercent(p) {
+      this._pct = Math.max(this.minPercent, Math.min(this.maxPercent, p));
+      const s = this._pct / 100;
+      modelRoot.scale.setScalar(s);
+      // 縮放後 clipBbox 需要重算（mutation 而非 reassign，clipping 用的是 closure）
+      clipBbox.copy(computeAnatomyBbox(modelRoot));
+    },
+  };
+
+  // ── 整合面板：視圖 / 分層 / 通路 / 剖面 四個 tab ──
   buildToolsPanel(toolsPanelEl, {
     layerManager,
     pathwayPlayer,
     pathwayDescContainer: pathwayDescPanelEl,
     clipping,
+    explodeCtrl,
+    modelScaler,
   });
   makeDraggable(toolsPanelEl);
   makeDraggable(pathwayDescPanelEl);
-
-  // Explode 仍獨立浮動（slider drag 不適合 tab 切換）
-  buildExplodePanel(explodePanelEl, explodeCtrl);
-  makeDraggable(explodePanelEl);
+  makeDraggable(infoPanelEl);     // 資訊面板從 .info-panel-header 拖曳
 
   // ── 器官導航：相機平滑移動到指定器官 ──
   organNav = new OrganNavigator({
@@ -375,7 +438,8 @@ async function loadAnatomy() {
     },
   ];
   buildOrganNavBar(organNavEl, organNav, organs);
-  makeDraggable(organNavEl);
+  // organ-nav 的 header 預設 display:none，改用 panel 自身當 handle（按鈕已被 makeDraggable 排除）
+  makeDraggable(organNavEl, { handleSelector: '.organ-nav' });
 
   // 神經脈衝動畫：只註冊交感神經（其他圖層平常不閃爍，只有選取/通路時才高亮）。
   // 預設 enabled = false，等使用者按頂端「啟動交感神經」按鈕。
@@ -404,7 +468,7 @@ async function loadAnatomy() {
     refresh();
   }
 
-  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, nervePulse, quiz, camera, controls };
+  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, nervePulse, quiz, camera, controls, modelScaler };
   console.info('[edu-platform] markers created:', markerMap.size);
 
   fitCameraToObject(modelRoot);

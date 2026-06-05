@@ -3,10 +3,11 @@
 
 import * as THREE from 'three';
 
-// 排序：由內而外（神經→交感→血管→骨→肌→皮）
+// 排序：由內而外（神經→交感→內臟→血管→骨→肌→皮）
 export const LAYERS = [
   { id: 'nerve',       label: '神經系統', color: '#f0d870', defaultState: 'visible' },
   { id: 'sympathetic', label: '交感神經', color: '#66ddff', defaultState: 'hidden'  },
+  { id: 'viscera',     label: '內臟',     color: '#ff8aa8', defaultState: 'hidden'  },
   { id: 'vessel',      label: '血管',     color: '#d23a3a', defaultState: 'hidden'  },
   { id: 'bone',        label: '骨骼',     color: '#ece1c6', defaultState: 'hidden'  },
   { id: 'muscle',      label: '肌肉',     color: '#b94a3e', defaultState: 'hidden'  },
