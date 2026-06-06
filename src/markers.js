@@ -33,15 +33,19 @@ export function createMarkers(structures) {
     const radius = isDeep ? BASE_RADIUS * 0.80 : BASE_RADIUS;
     const geo = new THREE.SphereGeometry(radius, 20, 14);
     // 用 MeshBasicMaterial（不依賴光照）+ depthTest:false 確保任何條件下都看得到。
-    // 之後可換回 MeshStandardMaterial 加細節，但先保證能看到。
+    // 預設 opacity = 0（看不見，但 raycaster 仍能 hit 用於 hover/click 選取）。
+    // updateMarkerVisuals 會在 hover / selected / highlight set / 通路 active 時把
+    // 對應 marker 改成可見。
+    const baseOpacity = isDeep ? 0.85 : 1.0;
     const mat = new THREE.MeshBasicMaterial({
       color,
       transparent: true,
-      opacity: isDeep ? 0.85 : 1.0,
+      opacity: 0,
       depthTest: false,
       depthWrite: false,
       toneMapped: false,    // 不被 ACES tone mapping 壓暗
     });
+    mat.userData._baseOpacity = baseOpacity;
 
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.fromArray(s.markerPosition);
@@ -89,14 +93,20 @@ export function updateMarkerVisuals(markerMap, { selectedId, hoveredId, highligh
     if (mat.userData._origColor === undefined) {
       mat.userData._origColor = mat.color.getHex();
     }
+    const baseOpacity = mat.userData._baseOpacity ?? 1.0;
+    const inHighlight = hl && hl.has(id);
     let scale = 1;
+    let opacity = 0;
     if (id === selectedId) {
       scale = SELECT_SCALE;
+      opacity = baseOpacity;
       mat.color.setHex(SELECT_COLOR);
     } else {
       mat.color.setHex(mat.userData._origColor);
-      if (id === hoveredId) scale = HOVER_SCALE;
+      if (id === hoveredId) { scale = HOVER_SCALE; opacity = baseOpacity; }
+      else if (inHighlight)  { scale = 1.3;            opacity = baseOpacity; }
     }
+    mat.opacity = opacity;
     mesh.scale.setScalar(scale);
   }
 }

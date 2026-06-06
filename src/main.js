@@ -153,6 +153,12 @@ async function loadAnatomy() {
       real.scale.setScalar(scaleFactor);
       real.position.copy(center.clone().multiplyScalar(-scaleFactor));
     }
+    // 微調：把腦稍微下移 + 後挪，讓它在頭骨內部視覺上更貼齊（Z-Anatomy 的 brain.glb
+    // bbox 中心略高於頭骨腔中心，直接靠 bbox-center 對齊會讓腦頂略冒出頭骨）。
+    // 同時把 marker group 同步位移，否則 marker 會跟 brain mesh 脫鉤。
+    const BRAIN_FIT_OFFSET = new THREE.Vector3(0, -0.05, 0);
+    real.position.add(BRAIN_FIT_OFFSET);
+    window.__brainFitOffset = BRAIN_FIT_OFFSET.clone();
     colorizeBrain(real, SYSTEM_COLORS);
     tagBrainMeshes(real);
     real.userData.isBrainMesh = true;  // 給 NervePulse 跳過用
@@ -269,6 +275,8 @@ async function loadAnatomy() {
   // but LayerManager skips opacity changes for markers (they stay legible during fade).
   const { group: markersGroup, markerMap: mm } = createMarkers(structuresList);
   for (const [k, v] of mm) markerMap.set(k, v);  // mutate, do NOT reassign
+  // markers 跟 brain mesh 同步 fit offset，否則 marker 會浮在腦表面外
+  if (window.__brainFitOffset) markersGroup.position.copy(window.__brainFitOffset);
   layerManager.registerMesh('nerve', markersGroup);
 
   // ── 真實 heart 模型：取代心臟 sphere marker ──
@@ -322,19 +330,24 @@ async function loadAnatomy() {
   clipping.applyToMaterials();
 
   // 方向參考眼球：優先用 skin 的眶區算左右眼世界座標
+  // skin 眶區是「臉部表面」的中心；要進到眼窩裡需要往 -z 推較大距離（皮膚表面到眼球
+  // 中心約 1.5–2 cm，模型單位 ~ 0.10–0.14），半徑也壓小一點，免得跟臉孔不成比例。
   if (real) {
     const skinGroup = layerManager.getGroup('skin');
     const orbital = skinGroup.children.length ? findOrbitalCenters(skinGroup) : null;
     if (orbital) {
-      orbital.left.z  -= 0.04;  // 往內塞進眼眶 (~1 cm)
-      orbital.right.z -= 0.04;
-      const eyeRadius = Math.max(0.025, orbital.left.distanceTo(orbital.right) * 0.14);
+      orbital.left.z  -= 0.08;  // 往內推到眼眶深處 (~2 cm in model space)
+      orbital.right.z -= 0.08;
+      // 眼球半徑：~ 兩眼距離的 8%（成人 IRL：眼距 ~6 cm、眼球半徑 ~1.2 cm → 20%；
+      //          但在這裡參考的是臉表面距離，會比眼球中心距離大，所以縮成 8%）
+      const eyeRadius = Math.min(0.025, orbital.left.distanceTo(orbital.right) * 0.08);
       scene.add(createOrientationEyes({
         leftPos: orbital.left, rightPos: orbital.right, radius: eyeRadius,
       }));
       console.info('[edu-platform] eyes aligned to orbital region',
         'L=', orbital.left.toArray().map(v => +v.toFixed(3)),
-        'R=', orbital.right.toArray().map(v => +v.toFixed(3)));
+        'R=', orbital.right.toArray().map(v => +v.toFixed(3)),
+        'r=', eyeRadius.toFixed(4));
     } else if (window.__brainBbox) {
       scene.add(createOrientationEyes(window.__brainBbox));
     }

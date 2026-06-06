@@ -129,13 +129,14 @@ export class PathwayPlayer {
     this.active = null;
     this.t = 0;
 
-    // Reset chain marker scales + hide external/organ markers
+    // Reset chain marker scales + opacity + hide external/organ markers
     for (const [id, m] of this.markerMap) {
       const struct = structureRegistry.get(id);
       if (struct?.kind === 'external' || struct?.kind === 'organ') {
         m.visible = false;
       }
       m.scale.setScalar(1);
+      if (m.material && m.userData.isMarker !== false) m.material.opacity = 0;
     }
 
     this.layerManager.setHighlightSet(new Set());
@@ -168,6 +169,8 @@ export class PathwayPlayer {
       if (m.userData.isMarker === false) continue;
       const scale = (id === selId) ? 1.55 : pulse;
       m.scale.setScalar(scale);
+      // marker 預設 opacity=0，通路播放時 chain markers 強制可見
+      if (m.material) m.material.opacity = m.material.userData._baseOpacity ?? 1.0;
     }
   }
 }
