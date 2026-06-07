@@ -22,7 +22,8 @@ JOBS = [
     ("Cranium",               "skull.glb",   0.35),   # 顱骨（含下顎），mesh 多所以多 decimate
     ("Cardiovascular system", "vessels.glb", 0.5),    # 全身血管系統（無細分頭部）
     ("Spinal cord",           "spinal.glb",  0.5),    # 脊髓本體（Z-Anatomy 只有約 2 mesh）
-    ("Muscles of head",       "muscles.glb", 0.45),   # 頭部肌肉
+    # 全身肌肉（4: Muscular system）— 789 mesh，decimate 多一點
+    ("4: Muscular system",    "muscles.glb", 0.20),
     ("Regions of head",       "skin.glb",    0.5),    # 頭部表面區塊（拼成 face mask）
     ("Spinal nerves",         "nerves.glb",  0.25),   # 周邊神經（含交感纖維），從脊髓延伸
     # 交感神經幹（Sympathetic trunk）+ 胸腰段自主神經，沿脊髓兩側分布
@@ -53,12 +54,27 @@ def collect_meshes_recursive(coll, out, include_curves=True):
         collect_meshes_recursive(child, out, include_curves)
 
 
-def _curve_to_mesh(curve_obj):
-    """把單一 CURVE 物件（含 bevel）烘成新的 MESH 物件，連進當前 scene。失敗回 None。"""
+def _curve_to_mesh(curve_obj, default_bevel_depth=0.0006):
+    """把單一 CURVE 物件烘成新的 MESH 物件，連進當前 scene。失敗回 None。
+    如果原 curve 沒設 bevel（bevel_depth==0 且無 bevel_object），給它一個微小 bevel
+    避免烘出 0 vertex 的退化 mesh（Z-Anatomy 血管曲線常見）。"""
     try:
+        # 如果 curve 沒 bevel 且沒 bevel_object，加上預設 bevel_depth 才會生成 mesh 表面
+        cd = getattr(curve_obj, 'data', None)
+        original_depth = None
+        if cd is not None and hasattr(cd, 'bevel_depth'):
+            if cd.bevel_depth == 0 and getattr(cd, 'bevel_object', None) is None:
+                original_depth = cd.bevel_depth
+                cd.bevel_depth = default_bevel_depth
+                # 加少量解析度
+                if hasattr(cd, 'bevel_resolution') and cd.bevel_resolution < 1:
+                    cd.bevel_resolution = 1
         deps = bpy.context.evaluated_depsgraph_get()
         eval_obj = curve_obj.evaluated_get(deps)
         mesh_data = bpy.data.meshes.new_from_object(eval_obj)
+        # 還原原本的 bevel_depth（避免污染 source blend file 評估快取）
+        if original_depth is not None and cd is not None:
+            cd.bevel_depth = original_depth
         if mesh_data is None or len(mesh_data.vertices) == 0:
             if mesh_data is not None:
                 bpy.data.meshes.remove(mesh_data)
@@ -168,4 +184,7 @@ def main():
     print("\n[all done]")
 
 
-main()
+# 若被當成主程式跑（blender --python scripts/export.py）就執行 main；
+# 被 import 進 wrapper script 時不自動跑。
+if __name__ == "__main__":
+    main()

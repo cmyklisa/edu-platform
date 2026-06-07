@@ -14,3 +14,4 @@ external/
 *.blend
 *.blend1
 /tmp_export/
+scripts/__pycache__/
