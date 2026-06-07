@@ -90,6 +90,24 @@
     ]
   },
   {
+    "id": "insula",
+    "name_zh": "島葉",
+    "name_la": "Insula (Lobus insularis)",
+    "function_zh": "藏在外側溝深處的「第五葉」，連接顳葉、頂葉、額葉。功能：內感覺整合（interoception，感知身體內部狀態如心跳、呼吸、腸道蠕動）、味覺皮質、痛苦情緒、自我意識、對他人情緒的同理。前島葉接收迷走神經傳來的腸道/內臟訊號 → 形成「直覺」與情緒身體感（如焦慮時的胃糾結、心悸）。島葉受損的病人對自身情緒狀態的覺察大幅下降。",
+    "system": "temporal",
+    "markerPosition": [
+      0.28,
+      0.0,
+      0.05
+    ],
+    "meshName": null,
+    "diseases_zh": [
+      "島葉中風（味覺失調、內感覺障礙）",
+      "驚恐症（前島葉過度活化）",
+      "成癮（吸菸者島葉受損後菸癮消失的案例）"
+    ]
+  },
+  {
     "id": "amygdala",
     "name_zh": "杏仁核",
     "name_la": "Corpus amygdaloideum",

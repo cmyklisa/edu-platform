@@ -40,5 +40,33 @@
     "name": "記憶形成（短期 → 長期）",
     "description": "經驗從感覺皮質（如顳葉聽覺、枕葉視覺）匯入海馬迴，海馬把多元素訊息綁定成情景記憶（episodic memory），睡眠時透過「記憶重播」逐步把記憶傳輸給大腦皮質長期儲存（特別是前額葉與顳葉新皮質）。視丘協助情景的時間順序整合。海馬受損的病人（如 H.M.）能保留舊記憶但無法形成新長期記憶，是失憶症神經科學基礎。",
     "nodes": ["temporal-lobe", "hippocampus", "thalamus", "prefrontal-cortex"]
+  },
+  {
+    "id": "vagus-afferent",
+    "name": "迷走神經上行（內感覺）",
+    "description": "腸道、心臟、肺臟等內臟的訊號（蠕動、心率、發炎、血氣）由迷走神經（CN X）80% 的纖維上行回腦：先到延腦的孤束核，再經臂旁核中繼到視丘，最後投射到島葉皮質形成「內感覺」（interoception，對內臟狀態的覺察）。這條通路是「直覺」「焦慮時胃糾結」「腸-腦軸」的解剖基礎；冥想與正念訓練被認為能強化這條迴路。",
+    "color": 4239615,
+    "nodes": ["small-intestine", "medulla", "thalamus", "insula"]
+  },
+  {
+    "id": "spinothalamic-pain",
+    "name": "脊髓痛覺上行",
+    "description": "皮膚或內臟受到傷害刺激時，Aδ 與 C 纖維傳入脊髓背角，於背角換神經元後立刻交叉到對側、沿脊髓視丘束（spinothalamic tract）上行到視丘的腹後外側核 VPL，再投射到頂葉中央後回的初級體感皮質形成痛覺位置感；同時分支到島葉與前扣帶迴形成痛苦情緒。PAG 可從上方下行抑制脊髓痛覺—嗎啡、極度恐懼、運動鎮痛都走這條。",
+    "color": 16729156,
+    "nodes": ["pain-stimulus", "spinal-cord", "thalamus", "parietal-lobe"]
+  },
+  {
+    "id": "sympathetic-descending",
+    "name": "交感神經下行（戰逃輸出）",
+    "description": "下視丘判斷需要動員時，沿背外側脊髓束下行到脊髓胸腰段（T1–L2）側角的節前神經元，後者投射到脊髓兩側的交感神經幹（chain ganglia）與椎前神經節，再分布到心臟（加速）、肺臟（擴張支氣管）、肝臟（釋糖）、腸道（抑制蠕動）、腎上腺（分泌腎上腺素）、毛囊（豎毛）、瞳孔（散大）。一條輸出 → 全身同步「戰／逃」總動員。",
+    "color": 16746496,
+    "nodes": ["hypothalamus", "spinal-cord", "heart", "small-intestine"]
+  },
+  {
+    "id": "parasympathetic-descending",
+    "name": "副交感神經下行（休復輸出）",
+    "description": "腦幹延腦的迷走神經背運動核發出副交感纖維，由迷走神經（CN X）下行：到心臟讓心率減慢（剎車）、到肺讓支氣管縮窄、到胃腸促進蠕動與消化液分泌、到肝促進膽汁分泌。骶部副交感（S2–S4）控制下消化道與膀胱。「休息與消化」狀態 — 與交感「戰逃」拮抗，兩者平衡決定自主神經狀態（HRV 指標）。",
+    "color": 6726399,
+    "nodes": ["medulla", "heart", "small-intestine"]
   }
 ]

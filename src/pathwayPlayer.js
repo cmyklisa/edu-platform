@@ -12,6 +12,12 @@ const SPEED       = 0.28;       // 每秒走過的 t 比例 (0..1)
 const CHAIN_PULSE_BASE  = 1.30;
 const CHAIN_PULSE_AMP   = 0.10;
 
+const ARROW_COUNT       = 5;
+const ARROW_LEN         = 0.075;
+const ARROW_RADIUS      = 0.030;
+const TMP_Y = new THREE.Vector3(0, 1, 0);
+const TMP_Q = new THREE.Quaternion();
+
 export class PathwayPlayer {
   constructor({ scene, layerManager, markerMap, getSelectedId }) {
     this.scene = scene;
@@ -23,6 +29,7 @@ export class PathwayPlayer {
     this.curve  = null;
     this.tube   = null;
     this.dot    = null;
+    this.arrows = [];       // 方向箭頭 mesh 陣列
     this.t      = 0;
 
     this.group = new THREE.Group();
@@ -65,10 +72,13 @@ export class PathwayPlayer {
     // Smooth curve through nodes
     this.curve = new THREE.CatmullRomCurve3(points, false, 'centripetal', 0.4);
 
+    // Tube + arrow 顏色：通路可自帶 color；沒給就用預設暖黃
+    const tubeColor = pathway.color != null ? pathway.color : TUBE_COLOR;
+
     // Glowing tube
     const tubeGeo = new THREE.TubeGeometry(this.curve, 120, TUBE_RADIUS, 8, false);
     const tubeMat = new THREE.MeshBasicMaterial({
-      color: TUBE_COLOR,
+      color: tubeColor,
       transparent: true,
       opacity: 0.65,
       depthTest: false,
@@ -80,6 +90,33 @@ export class PathwayPlayer {
     this.tube.name = `pathway_tube:${pathway.id}`;
     this.tube.userData.isOverlay = true;   // 不被剖面切到
     this.group.add(this.tube);
+
+    // 沿線方向箭頭（cone）：固定位置標示流向
+    const arrowGeo = new THREE.ConeGeometry(ARROW_RADIUS, ARROW_LEN, 12);
+    // ConeGeometry 預設沿 +Y 軸朝上；移到尖端，方便對齊 tangent
+    arrowGeo.translate(0, ARROW_LEN * 0.5, 0);
+    for (let i = 0; i < ARROW_COUNT; i++) {
+      const u = (i + 0.5) / ARROW_COUNT;
+      const pos = this.curve.getPointAt(u);
+      const tan = this.curve.getTangentAt(u).normalize();
+      const arrowMat = new THREE.MeshBasicMaterial({
+        color: tubeColor,
+        transparent: true,
+        opacity: 0.95,
+        depthTest: false,
+        depthWrite: false,
+        toneMapped: false,
+      });
+      const arrow = new THREE.Mesh(arrowGeo, arrowMat);
+      arrow.position.copy(pos);
+      TMP_Q.setFromUnitVectors(TMP_Y, tan);
+      arrow.quaternion.copy(TMP_Q);
+      arrow.renderOrder = 999;
+      arrow.userData.isOverlay = true;
+      arrow.name = `pathway_arrow:${pathway.id}:${i}`;
+      this.group.add(arrow);
+      this.arrows.push(arrow);
+    }
 
     // Flowing dot
     const dotGeo = new THREE.SphereGeometry(DOT_RADIUS, 22, 16);
@@ -124,6 +161,15 @@ export class PathwayPlayer {
       this.dot.material.dispose();
       this.group.remove(this.dot);
       this.dot = null;
+    }
+    // 共用 cone geometry：在第一個箭頭 dispose 即可，其餘材質個別 dispose
+    if (this.arrows.length) {
+      this.arrows[0].geometry?.dispose();
+      for (const a of this.arrows) {
+        a.material?.dispose();
+        this.group.remove(a);
+      }
+      this.arrows = [];
     }
     this.curve = null;
     this.active = null;
