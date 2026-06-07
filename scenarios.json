@@ -1,0 +1,66 @@
+[
+  {
+    "id": "danger-response",
+    "name": "危險反應完整情境",
+    "description": "從感知威脅到動員、評估、凍結、恢復的五波自主神經反應全景。每波之間自動推進，也可暫停在任一階段細看當下活動區域。",
+    "waves": [
+      {
+        "id": "perception",
+        "title": "① 感知波",
+        "subtitle": "視覺威脅 → 視丘 → 杏仁核",
+        "duration": 4.5,
+        "color": 16767338,
+        "description": "外部威脅進入眼睛 → 視丘外側膝狀體 → 「快速通道」直接投射到杏仁核（不經皮質意識）。整段約 12–25 毫秒，比理性思考快得多。這是為什麼你會「先嚇到再想是什麼」。",
+        "pathways": [
+          { "id": "perception-main", "nodes": ["threat-stimulus", "thalamus", "amygdala"] }
+        ]
+      },
+      {
+        "id": "mobilization",
+        "title": "② 動員波",
+        "subtitle": "戰逃輸出 + 全身警覺",
+        "duration": 5.5,
+        "color": 16729156,
+        "description": "杏仁核同時觸發兩條輸出：① 下視丘 → 脊髓側角 → 交感神經 → 腎上腺/心臟（讓心跳加速、血壓上升、能量釋放）；② 藍斑核（LC）→ 全腦正腎上腺素噴發 → 全身警覺、瞳孔放大、感官敏銳。雙線並行，數秒內讓身體進入戰逃狀態。",
+        "pathways": [
+          { "id": "mobilization-symp", "nodes": ["amygdala", "hypothalamus", "adrenal-gland", "heart"] },
+          { "id": "mobilization-lc",   "nodes": ["amygdala", "locus-coeruleus", "frontal-lobe"] }
+        ]
+      },
+      {
+        "id": "rational",
+        "title": "③ 理性波",
+        "subtitle": "前額葉評估 → 抑制杏仁核（綠色）",
+        "duration": 5.0,
+        "color": 4979301,
+        "description": "前額葉皮質（特別是 vmPFC）接到威脅訊號後評估：「真的危險嗎？」。若判斷安全，便經前扣帶迴（ACC）下行抑制杏仁核，把警報關閉。健康人在這一步能順利踩煞車；PTSD 病人此抑制通路較弱，杏仁核持續激活，是過度警覺與閃回的神經基礎。",
+        "pathways": [
+          { "id": "rational-eval", "nodes": ["amygdala", "thalamus", "prefrontal-cortex", "anterior-cingulate", "amygdala"] }
+        ]
+      },
+      {
+        "id": "freeze",
+        "title": "④ 凍結波",
+        "subtitle": "威脅過大 → PAG → 背側迷走（灰色）",
+        "duration": 5.0,
+        "color": 9344168,
+        "description": "若威脅判斷為「無法逃也無法戰」，杏仁核改驅動 PAG（中腦導水管周圍灰質）→ 啟動腦幹延腦的「背側迷走神經複合」→ 心率驟降、肌肉鬆軟、解離感、感官變鈍。動物界叫「裝死」（tonic immobility），人類創傷後常見的解離反應就是這條通路被誤觸發。",
+        "pathways": [
+          { "id": "freeze-pag", "nodes": ["amygdala", "pag", "medulla", "heart"] }
+        ]
+      },
+      {
+        "id": "recovery",
+        "title": "⑤ 恢復波",
+        "subtitle": "腹側迷走 → 安全訊號 → 身體放鬆（藍）",
+        "duration": 5.0,
+        "color": 6741247,
+        "description": "威脅解除後，腹側迷走神經複合（Polyvagal 理論的「社交參與系統」）發出安全訊號 → 延腦自主中樞 → 心率回穩、呼吸放慢、消化重啟、肌肉鬆弛、社交意願回來。健康的自主神經有彈性 (HRV 高)，可以快速從戰逃切回安全；長期創傷會降低這條恢復通路的效率，是 PTSD「持續備戰、難以放鬆」的核心問題。",
+        "pathways": [
+          { "id": "recovery-vagal", "nodes": ["medulla", "heart", "small-intestine"] },
+          { "id": "recovery-raphe", "nodes": ["raphe-nuclei", "prefrontal-cortex"] }
+        ]
+      }
+    ]
+  }
+]

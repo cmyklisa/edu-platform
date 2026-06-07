@@ -27,6 +27,8 @@ import { createHeartVessels } from './heartVessels.js';
 import { QuizController, buildQuizToggle } from './quiz.js';
 import { makeDraggable } from './draggable.js';
 import { mergeStaticLayer, ensureFrustumCulling, freezeStaticLayer } from './perf.js';
+import { ScenarioPlayer } from './scenarioPlayer.js';
+import { buildScenarioPanel, buildScenarioToggle } from './scenarioPanel.js';
 
 const canvas = document.getElementById('scene');
 const loadingEl = document.getElementById('loading');
@@ -35,6 +37,7 @@ const organNavEl         = document.getElementById('organ-nav');
 const infoPanelEl        = document.getElementById('info-panel');
 const tooltipEl          = document.getElementById('tooltip');
 const pathwayDescPanelEl = document.getElementById('pathway-desc-panel');
+const scenarioPanelEl    = document.getElementById('scenario-panel');
 
 const renderer = new THREE.WebGLRenderer({
   canvas, antialias: true, alpha: false, powerPreference: 'high-performance',
@@ -395,6 +398,14 @@ async function loadAnatomy() {
   makeDraggable(pathwayDescPanelEl);
   makeDraggable(infoPanelEl);     // 資訊面板從 .info-panel-header 拖曳
 
+  // ── 情境模式（多波次自動播放）──
+  scenarioPlayer = new ScenarioPlayer({
+    scene, layerManager, markerMap, pathwayPlayer,
+  });
+  buildScenarioPanel(scenarioPanelEl, scenarioPlayer);
+  buildScenarioToggle(document.getElementById('scenario-launch-slot'), scenarioPlayer);
+  makeDraggable(scenarioPanelEl);
+
   // ── 器官導航：相機平滑移動到指定器官 ──
   organNav = new OrganNavigator({
     camera, controls,
@@ -519,7 +530,7 @@ async function loadAnatomy() {
   console.info('[edu-platform] perf merge report:', JSON.stringify(mergeReport));
   console.info('[edu-platform] frustum culling enabled on', culledCount, 'meshes');
 
-  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, nervePulse, quiz, camera, controls, modelScaler };
+  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, nervePulse, quiz, camera, controls, modelScaler, scenarioPlayer };
   console.info('[edu-platform] markers created:', markerMap.size);
 
   fitCameraToObject(modelRoot);
@@ -704,13 +715,20 @@ let pathwayPlayer = null;
 let clipping = null;
 let explodeCtrl = null;
 let organNav = null;
+let scenarioPlayer = null;
 const nervePulse = new NervePulseController();
 
-// ESC: 取消選取；若已沒選取則停止通路
+// ESC: 取消選取；若已沒選取則停止情境模式 / 單通路
+// Space: 情境模式暫停/繼續
 window.addEventListener('keydown', (e) => {
-  if (e.key !== 'Escape') return;
-  if (selection.selectedId) selection.select(null);
-  else if (pathwayPlayer?.active) pathwayPlayer.stop();
+  if (e.key === 'Escape') {
+    if (selection.selectedId) selection.select(null);
+    else if (scenarioPlayer?.isActive()) scenarioPlayer.stop();
+    else if (pathwayPlayer?.active) pathwayPlayer.stop();
+  } else if (e.key === ' ' && scenarioPlayer?.isActive()) {
+    e.preventDefault();
+    scenarioPlayer.togglePause();
+  }
 });
 
 // ── Resize ───────────────────────────────────────────────────────────────
@@ -737,6 +755,7 @@ function animate() {
   const dt = clock.getDelta();
   if (organNav) organNav.update(dt);
   if (pathwayPlayer) pathwayPlayer.update(dt);
+  if (scenarioPlayer) scenarioPlayer.update(dt);
   nervePulse.update(dt);
   controls.update();
   renderer.render(scene, camera);

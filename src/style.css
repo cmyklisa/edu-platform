@@ -467,6 +467,193 @@ html, body, #app {
 }
 .info-diseases li { margin-bottom: 2px; }
 
+/* ── Scenario launch button (in topbar) ───────────────────────────────── */
+.scenario-launch-slot {
+  pointer-events: auto;
+}
+.scenario-launch-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: var(--fg);
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.scenario-launch-btn:hover {
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.30);
+}
+.scenario-launch-btn.active {
+  background: rgba(255, 100, 100, 0.22);
+  border-color: rgba(255, 100, 100, 0.65);
+  color: #ffb0b0;
+  font-weight: 600;
+}
+
+/* ── Scenario panel (timeline + description) ──────────────────────────── */
+.scenario-panel {
+  position: absolute;
+  right: 14px;
+  bottom: 56px;
+  width: 320px;
+  max-height: calc(100vh - 130px);
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  font-size: 12px;
+  z-index: 4;
+  display: none;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+  display: flex;
+  flex-direction: column;
+}
+.scenario-panel.visible { display: flex; }
+.scenario-panel[hidden] { display: none !important; }
+
+.scenario-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.scenario-titles { min-width: 0; flex: 1; }
+.scenario-titles h2 {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #ffd86a;
+}
+.scenario-sub {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+}
+.scenario-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.scenario-toggle, .scenario-stop {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.16);
+  color: var(--fg);
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: inherit;
+  min-width: 30px;
+}
+.scenario-toggle:hover, .scenario-stop:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.30);
+}
+.scenario-stop {
+  color: #ff9c9c;
+  border-color: rgba(255,90,90,0.40);
+}
+
+.scenario-body {
+  overflow-y: auto;
+  padding: 8px 12px 12px;
+  flex: 1 1 auto;
+}
+
+.scenario-waves {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.scenario-wave {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: rgba(255,255,255,0.02);
+  transition: background 0.12s, border-color 0.12s;
+}
+.scenario-wave:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.14);
+}
+.scenario-wave.active {
+  background: rgba(255, 216, 106, 0.12);
+  border-color: rgba(255, 216, 106, 0.55);
+}
+.scenario-wave.done .scenario-wave-title { color: var(--muted); }
+.scenario-wave.done .scenario-wave-dot   { opacity: 0.45; }
+
+.scenario-wave-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.4) inset;
+}
+.scenario-wave-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg);
+}
+.scenario-wave-sub {
+  font-size: 10.5px;
+  color: var(--muted);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.scenario-progress {
+  height: 4px;
+  background: rgba(255,255,255,0.10);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 4px 0 10px;
+}
+.scenario-progress-bar {
+  height: 100%;
+  background: linear-gradient(to right, #ffd86a, #ff8c40);
+  transition: width 0.2s linear;
+}
+
+.scenario-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--fg);
+  padding-top: 8px;
+  border-top: 1px dashed rgba(255,255,255,0.10);
+}
+
+@media (max-width: 640px) {
+  .scenario-panel {
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+    width: auto;
+    max-height: 50vh;
+  }
+}
+
 /* ── Quiz UI ──────────────────────────────────────────────────────────── */
 .quiz-toggle-slot {
   pointer-events: auto;

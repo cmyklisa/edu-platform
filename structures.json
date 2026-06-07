@@ -90,6 +90,78 @@
     ]
   },
   {
+    "id": "anterior-cingulate",
+    "name_zh": "前扣帶迴皮質 (ACC)",
+    "name_la": "Cortex cingularis anterior",
+    "function_zh": "前扣帶迴在胼胝體上方、前額葉內側，是「情緒—認知—執行」的關鍵節點。功能：偵測衝突與錯誤、調節注意力、整合痛苦的情緒成分（痛苦的「困擾度」由 ACC 編碼）、調節自主神經輸出、評估社交排擠的痛。fMRI 中焦慮症、創傷後壓力症（PTSD）的 ACC 過度反應；憂鬱症則 ACC 與前額葉的調節迴路下降。「正念」「冥想」訓練常加強 ACC—前額葉連結，提升情緒調節能力。",
+    "system": "frontal",
+    "markerPosition": [
+      0.0,
+      0.08,
+      0.18
+    ],
+    "meshName": null,
+    "diseases_zh": [
+      "PTSD（ACC 對杏仁核抑制不足）",
+      "強迫症（OCD）—偵測錯誤迴路過度活化",
+      "憂鬱症—ACC/前額葉迴路活性下降"
+    ]
+  },
+  {
+    "id": "locus-coeruleus",
+    "name_zh": "藍斑核 (LC)",
+    "name_la": "Locus coeruleus",
+    "function_zh": "位於上橋腦背外側、第四腦室底，是腦內主要的正腎上腺素（NE/noradrenaline）來源。雖然只有約 3 萬個神經元，卻投射到幾乎整個前腦、小腦、脊髓。功能：警覺、覺醒、注意力切換、壓力反應的「全身警鈴」。受到杏仁核驅動而活化，輸出讓皮質快速進入高警覺狀態（瞳孔放大、心跳加速、感官敏銳）。PTSD 病人 LC 過度活化，是「過度警覺、易嚇」的神經基礎。",
+    "system": "brainstem",
+    "markerPosition": [
+      0.04,
+      -0.14,
+      -0.06
+    ],
+    "meshName": null,
+    "diseases_zh": [
+      "PTSD（LC 過度活化 → 過度警覺）",
+      "焦慮症、驚恐發作",
+      "巴金森氏症（LC 神經元損失導致非運動症狀）"
+    ]
+  },
+  {
+    "id": "raphe-nuclei",
+    "name_zh": "縫核 (Raphe)",
+    "name_la": "Nuclei raphes",
+    "function_zh": "沿腦幹中線（橋腦＋延腦）的一群核團，是腦內主要的血清素（5-HT/serotonin）來源。投射廣泛，調節情緒、睡眠、食慾、體溫、痛覺抑制。背側縫核（DRN）主要負責情緒與壓力反應，正中縫核（MRN）負責晝夜節律。SSRI 抗憂鬱藥透過提高縫核投射目標處的 5-HT 濃度發揮療效。慢性壓力會降低縫核 5-HT 神經元的可塑性，是憂鬱症的關鍵神經基礎。",
+    "system": "brainstem",
+    "markerPosition": [
+      0.0,
+      -0.17,
+      -0.05
+    ],
+    "meshName": null,
+    "diseases_zh": [
+      "重度憂鬱症（5-HT 系統失調）",
+      "焦慮症、強迫症",
+      "睡眠障礙、慢性疼痛"
+    ]
+  },
+  {
+    "id": "vta",
+    "name_zh": "腹側被蓋區 (VTA)",
+    "name_la": "Area tegmentalis ventralis",
+    "function_zh": "位於中腦腹側中線，是腦內主要的多巴胺（dopamine）來源之一。VTA → 伏隔核 = 中腦邊緣多巴胺通路（mesolimbic），編碼「獎勵預測誤差」與動機；VTA → 前額葉 = 中腦皮質通路（mesocortical），參與工作記憶與認知控制。所有成癮性物質（古柯鹼、安非他命、尼古丁、酒精、嗎啡）都會異常放大 VTA → NAc 多巴胺釋放。憂鬱症的「動機缺失」與 VTA 活性降低相關。",
+    "system": "brainstem",
+    "markerPosition": [
+      0.0,
+      -0.08,
+      -0.04
+    ],
+    "meshName": null,
+    "diseases_zh": [
+      "成癮（VTA-NAc 多巴胺路徑異常放大）",
+      "憂鬱症（動機缺失與 VTA 活性下降）",
+      "思覺失調症（中腦皮質多巴胺失調）"
+    ]
+  },
+  {
     "id": "insula",
     "name_zh": "島葉",
     "name_la": "Insula (Lobus insularis)",

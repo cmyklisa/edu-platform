@@ -27,6 +27,14 @@ export const STRUCTURE_MESH_PATTERNS = {
   'cn-12-hypoglossal':      ['hypoglossal'],
 
   // ── 具體深部結構（最優先匹配，primary 就是自己）
+  // 新增腦區：島葉、ACC、藍斑核、縫核、VTA（多數 Z-Anatomy mesh 無單獨命名，
+  // 點 mesh 不一定能命中；marker 是主要互動點）
+  'insula':             ['insula', 'insular'],
+  'anterior-cingulate': ['anterior_cingulate', 'cingulate_anterior'],
+  'locus-coeruleus':    ['locus_coeruleus', 'coeruleus'],
+  'raphe-nuclei':       ['raphe'],
+  'vta':                ['ventral_tegment', 'tegmental_area'],
+
   'amygdala':           ['amygdal'],
   'hippocampus':        ['hippocampus', 'parahippocampal'],
   'hypothalamus':       ['hypothalamus', 'mammillary', 'mamillary'],
