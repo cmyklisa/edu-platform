@@ -3,9 +3,12 @@
 
 import * as THREE from 'three';
 
-// 排序：由內而外（神經→交感→內臟→血管→骨→肌→皮）
+// 排序：由內而外（大腦→周邊神經→交感→內臟→血管→骨→肌→皮）
+// 「大腦」獨立於「周邊神經」：使用者可以只看 brain mesh 而不看遍布全身的周邊神經/腦神經
+//  網絡（之前都歸在 nerve 層，會讓人誤以為金色周邊神經是肌肉）。
 export const LAYERS = [
-  { id: 'nerve',       label: '神經系統', color: '#f0d870', defaultState: 'visible' },
+  { id: 'brain',       label: '大腦',     color: '#ffb18a', defaultState: 'visible' },
+  { id: 'nerve',       label: '周邊神經', color: '#f0d870', defaultState: 'visible' },
   { id: 'sympathetic', label: '交感神經', color: '#66ddff', defaultState: 'hidden'  },
   { id: 'viscera',     label: '內臟',     color: '#ff8aa8', defaultState: 'hidden'  },
   { id: 'vessel',      label: '血管',     color: '#d23a3a', defaultState: 'hidden'  },
@@ -97,6 +100,8 @@ export class LayerManager {
 
     group.traverse(child => {
       if (!child.isMesh) return;
+      // overlay 物件（方向眼球等）不參與 fade，避免淡化時眼球變半透明
+      if (child.userData.isOverlay) return;
       const mats = Array.isArray(child.material) ? child.material : [child.material];
       const isMarker = !!child.userData.isMarker;
       // 一個 mesh 可能 belongs-to 多個 structure（cortex orbital 同時是 prefrontal + frontal-lobe）

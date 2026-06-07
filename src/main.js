@@ -162,7 +162,7 @@ async function loadAnatomy() {
     colorizeBrain(real, SYSTEM_COLORS);
     tagBrainMeshes(real);
     real.userData.isBrainMesh = true;  // 給 NervePulse 跳過用
-    layerManager.registerMesh('nerve', real);
+    layerManager.registerMesh('brain', real);   // brain 自己一層，獨立於周邊神經
     console.info('[edu-platform] loaded real anatomy:',
       '#meshes=', countMeshes(real),
       'origSize=', size.toFixed(3));
@@ -266,7 +266,7 @@ async function loadAnatomy() {
     layerManager.registerMesh('muscle', createMuscleShell());
     layerManager.registerMesh('bone',   createBoneShell());
     layerManager.registerMesh('vessel', createVesselTubes());
-    layerManager.registerMesh('nerve',  createPlaceholderBrain());
+    layerManager.registerMesh('brain',  createPlaceholderBrain());
   }
   // skin / muscle 在 real 分支內已用對齊版本（createSkinShellAroundBbox）註冊
 
@@ -277,7 +277,7 @@ async function loadAnatomy() {
   for (const [k, v] of mm) markerMap.set(k, v);  // mutate, do NOT reassign
   // markers 跟 brain mesh 同步 fit offset，否則 marker 會浮在腦表面外
   if (window.__brainFitOffset) markersGroup.position.copy(window.__brainFitOffset);
-  layerManager.registerMesh('nerve', markersGroup);
+  layerManager.registerMesh('brain', markersGroup);  // markers 屬於腦層
 
   // ── 真實 heart 模型：取代心臟 sphere marker ──
   // 位置與原 marker 一致（-0.10, -0.85, 0.10），就在腦下方。
@@ -293,8 +293,8 @@ async function loadAnatomy() {
       opacity: 1,
     });
     if (heartWrapper) {
-      // 放進 nerve layer（預設 visible）
-      layerManager.registerMesh('nerve', heartWrapper);
+      // 心臟跟著腦放在 brain 層（與 brain-heart 通路有解剖意義關聯）
+      layerManager.registerMesh('brain', heartWrapper);
       // 心臟改為常駐顯示：拿掉 kind='organ' 讓 PathwayPlayer.stop 不會自動隱藏；
       // 並把 visible 設 true（loadOrganMesh 預設 false 給單純 pathway-only 器官用）
       heartWrapper.visible = true;
@@ -310,7 +310,7 @@ async function loadAnatomy() {
         heartPosition: heartPos,
         brainBox: window.__brainBbox ?? new THREE.Box3().setFromObject(real),
       });
-      layerManager.registerMesh('nerve', vesselsGroup);
+      layerManager.registerMesh('brain', vesselsGroup);   // 連接管也放 brain 層
       console.info('[edu-platform] heart-brain vessels created:', vesselsGroup.children.length);
     }
   }
@@ -329,22 +329,26 @@ async function loadAnatomy() {
   });
   clipping.applyToMaterials();
 
-  // 方向參考眼球：優先用 skin 的眶區算左右眼世界座標
-  // skin 眶區是「臉部表面」的中心；要進到眼窩裡需要往 -z 推較大距離（皮膚表面到眼球
-  // 中心約 1.5–2 cm，模型單位 ~ 0.10–0.14），半徑也壓小一點，免得跟臉孔不成比例。
+  // 方向參考眼球：用臉部肌肉層（含 orbicularis oculi）的眶區算左右眼世界座標。
+  // 肌肉表面比皮膚更接近眼球本體，眼眶內側深度約 1 cm，往 -z 推 0.04 就到眼球中心。
+  // 眼球加進 muscle 層，跟臉部肌肉同步顯隱。
   if (real) {
-    const skinGroup = layerManager.getGroup('skin');
-    const orbital = skinGroup.children.length ? findOrbitalCenters(skinGroup) : null;
+    const muscleGroup = layerManager.getGroup('muscle');
+    const skinGroup   = layerManager.getGroup('skin');
+    // 優先用肌肉層；找不到再 fallback 到 skin
+    let orbital = (muscleGroup.children.length ? findOrbitalCenters(muscleGroup) : null)
+               ?? (skinGroup.children.length   ? findOrbitalCenters(skinGroup)   : null);
+    let host = orbital ? muscleGroup : null;
     if (orbital) {
-      orbital.left.z  -= 0.08;  // 往內推到眼眶深處 (~2 cm in model space)
-      orbital.right.z -= 0.08;
-      // 眼球半徑：~ 兩眼距離的 8%（成人 IRL：眼距 ~6 cm、眼球半徑 ~1.2 cm → 20%；
-      //          但在這裡參考的是臉表面距離，會比眼球中心距離大，所以縮成 8%）
+      orbital.left.z  -= 0.04;
+      orbital.right.z -= 0.04;
       const eyeRadius = Math.min(0.025, orbital.left.distanceTo(orbital.right) * 0.08);
-      scene.add(createOrientationEyes({
+      const eyesGroup = createOrientationEyes({
         leftPos: orbital.left, rightPos: orbital.right, radius: eyeRadius,
-      }));
-      console.info('[edu-platform] eyes aligned to orbital region',
+      });
+      // 加進 muscle layer 群組 → 跟肌肉同步顯隱
+      (host ?? scene).add(eyesGroup);
+      console.info('[edu-platform] eyes aligned to muscle orbital region',
         'L=', orbital.left.toArray().map(v => +v.toFixed(3)),
         'R=', orbital.right.toArray().map(v => +v.toFixed(3)),
         'r=', eyeRadius.toFixed(4));
