@@ -29,6 +29,7 @@ import { makeDraggable } from './draggable.js';
 import { mergeStaticLayer, ensureFrustumCulling, freezeStaticLayer } from './perf.js';
 import { ScenarioPlayer } from './scenarioPlayer.js';
 import { buildScenarioPanel, buildScenarioToggle } from './scenarioPanel.js';
+import { BloodFlowController } from './bloodFlow.js';
 
 const canvas = document.getElementById('scene');
 const loadingEl = document.getElementById('loading');
@@ -497,11 +498,43 @@ async function loadAnatomy() {
     refresh();
   }
 
+  // ── 血流動畫：依名稱分類動脈/靜脈、著色、加方向箭頭、註冊 emissive pulse ──
+  // arrowParent 掛在 scene root，箭頭世界座標已固定；不被任何 layer 影響
+  if (real) {
+    const heartWorld = markerMap.get('heart')?.position ?? new THREE.Vector3();
+    bloodFlow = new BloodFlowController({ heartPos: heartWorld });
+    const arrowParent = new THREE.Group();
+    arrowParent.name = 'blood_flow_arrows';
+    scene.add(arrowParent);
+    const stats = bloodFlow.registerVesselGroup(layerManager.getGroup('vessel'), arrowParent);
+    console.info('[edu-platform] blood flow targets:', JSON.stringify(stats));
+  }
+
+  // 「啟動血流」按鈕（topbar 內）
+  const bloodBtn = document.getElementById('blood-flow-toggle');
+  if (bloodBtn && bloodFlow) {
+    const refresh = () => {
+      bloodBtn.classList.toggle('active', bloodFlow.enabled);
+      bloodBtn.textContent = bloodFlow.enabled ? '💧 停止血流' : '💧 啟動血流';
+    };
+    bloodBtn.addEventListener('click', () => {
+      bloodFlow.toggle();
+      // 開啟血流時若血管層被隱藏，順便顯示
+      if (bloodFlow.enabled && layerManager.get('vessel').state === 'hidden') {
+        layerManager.setState('vessel', 'visible');
+      }
+      refresh();
+    });
+    bloodFlow.onChange(refresh);
+    refresh();
+  }
+
   // ── 效能優化：合併不可點擊的靜態圖層 → 大幅減少 draw call ──
-  //   skin/muscle/bone/vessel 沒有 per-mesh structureId，可安全合併。
+  //   skin/muscle/bone 沒有 per-mesh structureId，可安全合併。
+  //   vessel 不合併：BloodFlowController 需要 per-mesh emissive pulse 跟方向箭頭
   //   brain/cranial-nerves/sympathetic/viscera/nerves 保留 per-mesh 以維持點選/高亮。
   let mergeReport = {};
-  for (const layerId of ['skin', 'muscle', 'bone', 'vessel']) {
+  for (const layerId of ['skin', 'muscle', 'bone']) {
     const g = layerManager.getGroup(layerId);
     const before = countMeshes(g);
     const n = mergeStaticLayer(g, { name: layerId });
@@ -510,7 +543,7 @@ async function loadAnatomy() {
     if (n > 0) freezeStaticLayer(g);
   }
   // 重新註冊合併後 mesh 的原始 opacity，讓 LayerManager 後續 setState 能對它生效
-  for (const layerId of ['skin', 'muscle', 'bone', 'vessel']) {
+  for (const layerId of ['skin', 'muscle', 'bone']) {
     const g = layerManager.getGroup(layerId);
     g.traverse(child => {
       if (!child.isMesh) return;
@@ -530,7 +563,7 @@ async function loadAnatomy() {
   console.info('[edu-platform] perf merge report:', JSON.stringify(mergeReport));
   console.info('[edu-platform] frustum culling enabled on', culledCount, 'meshes');
 
-  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, nervePulse, quiz, camera, controls, modelScaler, scenarioPlayer };
+  window.__edu = { scene, modelRoot, layerManager, markerMap, markersGroup, structuresList, pathwayPlayer, clipping, explodeCtrl, organNav, nervePulse, quiz, camera, controls, modelScaler, scenarioPlayer, bloodFlow };
   console.info('[edu-platform] markers created:', markerMap.size);
 
   fitCameraToObject(modelRoot);
@@ -716,6 +749,7 @@ let clipping = null;
 let explodeCtrl = null;
 let organNav = null;
 let scenarioPlayer = null;
+let bloodFlow = null;
 const nervePulse = new NervePulseController();
 
 // ESC: 取消選取；若已沒選取則停止情境模式 / 單通路
@@ -756,6 +790,7 @@ function animate() {
   if (organNav) organNav.update(dt);
   if (pathwayPlayer) pathwayPlayer.update(dt);
   if (scenarioPlayer) scenarioPlayer.update(dt);
+  if (bloodFlow) bloodFlow.update(dt);
   nervePulse.update(dt);
   controls.update();
   renderer.render(scene, camera);
