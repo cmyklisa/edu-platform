@@ -60,7 +60,8 @@ export class OrganNavigator {
 }
 
 // ── UI ───────────────────────────────────────────────────────────────────
-export function buildOrganNavBar(container, navigator, organs) {
+export function buildOrganNavBar(container, navigator, organs, opts = {}) {
+  const getFitTarget = opts.getFitTarget;   // optional：點全景時用「目前可見內容」算框景目標
   container.innerHTML = `
     <header class="organ-nav-header draggable-handle">
       <h2>器官導航</h2>
@@ -81,7 +82,14 @@ export function buildOrganNavBar(container, navigator, organs) {
     if (btn.dataset.organ === '__reset') {
       // 清掉所有 nav 強制顯示的器官
       for (const o of organs) o.onLeave?.();
-      navigator.reset();
+      // 全景：依目前可見圖層重新計算 bbox 來框景；找不到 fallback 用 default
+      const fit = getFitTarget?.();
+      if (fit) {
+        navigator.focusOn(fit);
+      } else {
+        navigator.reset();
+      }
+      navigator.activeOrganId = null;
       // visual active state
       for (const b of container.querySelectorAll('.organ-nav-btn')) b.classList.remove('active');
       return;

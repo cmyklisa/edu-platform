@@ -19,6 +19,7 @@ import { PathwayPlayer } from './pathwayPlayer.js';
 import { ClippingController } from './clipping.js';
 import { createOrientationEyes } from './orientationCue.js';
 import { createSkinTexture, findOrbitalCenters } from './skinTexture.js';
+import { createMuscleBumpMap } from './muscleTexture.js';
 import { NervePulseController } from './nervePulse.js';
 import { ExplodeController } from './explode.js';
 import { buildViewPanel } from './viewPanel.js';
@@ -258,6 +259,18 @@ async function loadAnatomy() {
       });
     }
     await loadAlignedLayer(REAL_MUSCLES_URL, 'muscle', { scaleFactor, center, color: 0xc14a40, opacity: 0.95 });
+    // 程序化肌肉纖維 bump map：讓肌肉表面有方向性紋路（垂直細線 + 雜訊）
+    const muscleBumpTex = createMuscleBumpMap();
+    layerManager.getGroup('muscle').traverse(o => {
+      if (!o.isMesh || !o.material) return;
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      for (const m of mats) {
+        m.bumpMap = muscleBumpTex;
+        m.bumpScale = 0.020;
+        m.roughness = 0.72;
+        m.needsUpdate = true;
+      }
+    });
     await loadAlignedLayer(REAL_SKIN_URL,    'skin',   { scaleFactor, center, color: 0xe8b59a, opacity: 1 });
     // 把程序化皮膚紋路套到所有 skin material（雜訊 + 色斑 + 毛孔）
     const skinTex = createSkinTexture();
@@ -493,7 +506,26 @@ async function loadAnatomy() {
       },
     },
   ];
-  buildOrganNavBar(organNavEl, organNav, organs);
+  buildOrganNavBar(organNavEl, organNav, organs, {
+    // 全景：依目前可見內容算 bbox，camera 拉到能完整框住的距離
+    getFitTarget: () => {
+      modelRoot.updateMatrixWorld(true);
+      const box = new THREE.Box3();
+      const tmp = new THREE.Box3();
+      modelRoot.traverseVisible(o => {
+        if (!o.isMesh || o.userData.isMarker || o.userData.isOverlay) return;
+        tmp.setFromObject(o);
+        box.union(tmp);
+      });
+      if (box.isEmpty()) return null;
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const longest = Math.max(size.x, size.y, size.z);
+      const vfov = (camera.fov * Math.PI) / 180;
+      const distance = (longest / 2) / Math.tan(vfov / 2) * 1.15;
+      return { center, distance: Math.max(2.5, distance) };
+    },
+  });
   // organ-nav 的 header 預設 display:none，改用 panel 自身當 handle（按鈕已被 makeDraggable 排除）
   makeDraggable(organNavEl, { handleSelector: '.organ-nav' });
 
@@ -524,15 +556,13 @@ async function loadAnatomy() {
     refresh();
   }
 
-  // ── 血流動畫：依名稱分類動脈/靜脈、著色、加方向箭頭、註冊 emissive pulse ──
-  // arrowParent 掛在 scene root，箭頭世界座標已固定；不被任何 layer 影響
+  // ── 血流動畫：依名稱分類動脈/靜脈、著色、抽 vessel curve、沿 curve 移動光點 ──
+  // 紅色光點動脈往外流、藍色光點靜脈回心臟；dot group 加在 scene root，
+  // 預設隱藏；toggle 後才出現
   if (real) {
     const heartWorld = markerMap.get('heart')?.position ?? new THREE.Vector3();
     bloodFlow = new BloodFlowController({ heartPos: heartWorld });
-    const arrowParent = new THREE.Group();
-    arrowParent.name = 'blood_flow_arrows';
-    scene.add(arrowParent);
-    const stats = bloodFlow.registerVesselGroup(layerManager.getGroup('vessel'), arrowParent);
+    const stats = bloodFlow.registerVesselGroup(layerManager.getGroup('vessel'), scene);
     console.info('[edu-platform] blood flow targets:', JSON.stringify(stats));
   }
 
