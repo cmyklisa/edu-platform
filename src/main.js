@@ -63,6 +63,31 @@ const keyLight  = new THREE.DirectionalLight(0xffffff, 1.35);  keyLight.position
 const rimLight  = new THREE.DirectionalLight(0x88aaff, 0.65);  rimLight.position.set(-3, 1.2, -2);  scene.add(rimLight);
 const fillLight = new THREE.DirectionalLight(0xffd9c0, 0.35);  fillLight.position.set(0, -2, 2);    scene.add(fillLight);
 
+// 使用者可切換的補光（左上方，照亮細節）；預設關閉
+const userSpotlight = new THREE.DirectionalLight(0xffffff, 1.8);
+userSpotlight.position.set(-4, 5, 3);
+userSpotlight.visible = false;
+scene.add(userSpotlight);
+
+const lightCtrl = {
+  light: userSpotlight,
+  _enabled: false,
+  _intensity: 1.8,
+  minIntensity: 0,
+  maxIntensity: 4,
+  get enabled() { return this._enabled; },
+  setEnabled(v) {
+    this._enabled = !!v;
+    userSpotlight.visible = this._enabled;
+  },
+  toggle() { this.setEnabled(!this._enabled); },
+  getIntensity() { return this._intensity; },
+  setIntensity(i) {
+    this._intensity = Math.max(this.minIntensity, Math.min(this.maxIntensity, i));
+    userSpotlight.intensity = this._intensity;
+  },
+};
+
 // ── Controls ─────────────────────────────────────────────────────────────
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
@@ -394,6 +419,7 @@ async function loadAnatomy() {
     clipping,
     explodeCtrl,
     modelScaler,
+    lightCtrl,
   });
   makeDraggable(toolsPanelEl);
   makeDraggable(pathwayDescPanelEl);

@@ -16,7 +16,7 @@ const TABS = [
 
 export function buildToolsPanel(container, {
   layerManager, pathwayPlayer, pathwayDescContainer, clipping,
-  explodeCtrl, modelScaler,
+  explodeCtrl, modelScaler, lightCtrl,
 }) {
   let active = 'layer';
 
@@ -59,7 +59,7 @@ export function buildToolsPanel(container, {
     );
     buildViewPanel(
       container.querySelector('[data-tabpane="view"]'),
-      { explodeCtrl, modelScaler },
+      { explodeCtrl, modelScaler, lightCtrl },
     );
   }
 
