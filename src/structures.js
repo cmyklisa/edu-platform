@@ -18,6 +18,7 @@ export const SYSTEM_LABEL = {
   'cranial-nerve':'腦神經',
   stimulus:       '外部刺激',
   organ:          '末梢器官',
+  muscle:         '骨骼肌',
 };
 
 // 每區一個顏色，方便學習者一眼分辨；同時用在 markers 與 brain mesh 著色
@@ -33,4 +34,5 @@ export const SYSTEM_COLORS = {
   'cranial-nerve':0xa0e8a0,  // 草綠（腦神經）
   stimulus:       0xff5a5a,  // 警示紅
   organ:          0xff8aa8,  // 粉
+  muscle:         0xc14a40,  // 肌肉紅
 };

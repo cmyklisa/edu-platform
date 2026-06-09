@@ -13,7 +13,9 @@ export function buildInfoPanel(container, { onClose } = {}) {
       container.classList.remove('visible');
       return;
     }
-    const isPlaceholder = !s.meshName; // 無真實 mesh → 標記為示意位置
+    // 「示意位置」標籤：適用於無真實 mesh 的深部核（marker 是發光球）。
+    // 肌肉系統有真實 GLB mesh（每個肌肉群 tag 自 muscleGroups.js），不該被標示意。
+    const isPlaceholder = !s.meshName && s.system !== 'muscle';
     const diseases = Array.isArray(s.diseases_zh) ? s.diseases_zh : null;
     container.innerHTML = `
       <header class="info-panel-header draggable-handle">

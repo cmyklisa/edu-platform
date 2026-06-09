@@ -813,5 +813,291 @@
       "愛迪生氏症（皮質醇不足）",
       "嗜鉻細胞瘤（腎上腺素過量）"
     ]
+  },
+  {
+    "id": "facial-muscles",
+    "name_zh": "臉部表情肌",
+    "name_la": "Musculi faciei",
+    "function_zh": "由顏面神經（CN VII）支配的一群皮下肌，附著於皮膚（而非骨—骨之間），收縮時牽動皮膚產生表情（皺眉、微笑、噘嘴、閉眼）。包含額肌（揚眉）、皺眉肌、眼輪匝肌（閉眼）、口輪匝肌（噘嘴）、顴大／顴小肌（拉嘴角向上外，「笑」的主力）、頰肌（吹氣、咀嚼時把食物推回臼齒）、降口角肌（嘴角下垂的「悲」）、頦肌（下唇上推的「賭氣」）等。貝爾氏麻痺會造成單側全部表情肌癱瘓。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "貝爾氏麻痺 (Bell palsy)",
+      "顏面神經麻痺",
+      "肉毒桿菌中毒"
+    ]
+  },
+  {
+    "id": "masseter-group",
+    "name_zh": "咀嚼肌群",
+    "name_la": "Musculi masticatorii",
+    "function_zh": "由三叉神經下頜支（CN V₃）支配的四對強力肌：咬肌（masseter，淺層 + 深層，是體積最大、最容易摸到的下顎肌）、顳肌（temporalis，扇形覆蓋顳骨）、外側翼狀肌、內側翼狀肌。合力閉合下顎（咬合）並做磨動作。咬肌的咬合力可達 70 公斤以上，是身體單位面積最強的肌肉之一。長期磨牙、咬牙會造成咬肌肥大（國字臉）。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "顳顎關節症候群 (TMJ)",
+      "磨牙症 (bruxism)",
+      "咬肌肥大"
+    ]
+  },
+  {
+    "id": "sternocleidomastoid",
+    "name_zh": "胸鎖乳突肌",
+    "name_la": "Musculus sternocleidomastoideus",
+    "function_zh": "頸部最顯眼的長條斜肌，起自胸骨柄與鎖骨內側，斜向上止於顳骨乳突。單側收縮 → 頭往同側傾、臉轉向對側；雙側同時收縮 → 低頭。由副神經（CN XI）支配。先天性肌肉性斜頸（congenital muscular torticollis）是嬰兒一側胸鎖乳突肌纖維化導致頭歪向同側、臉轉向對側；揮鞭式頸椎傷常傷此肌。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "斜頸 (torticollis)",
+      "揮鞭式頸椎傷",
+      "副神經麻痺"
+    ]
+  },
+  {
+    "id": "neck-deep-muscles",
+    "name_zh": "頸部深層肌群",
+    "name_la": "Musculi colli profundi",
+    "function_zh": "包含前斜角肌／中斜角肌／後斜角肌（scalenes，連接頸椎與第 1–2 肋，呼吸輔助肌 + 頸椎屈曲），頸長肌、頭長肌（longus capitis/colli，貼脊椎前方的屈頸肌），夾肌（splenius capitis/colli，後頸伸頭），舌骨上下肌群（geniohyoid, mylohyoid, digastric, sternohyoid…，吞嚥與發聲時穩定舌骨）。臂叢神經穿過前中斜角肌之間，斜角肌過緊會壓迫造成胸廓出口症候群。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "胸廓出口症候群 (TOS)",
+      "頸源性頭痛",
+      "吞嚥困難"
+    ]
+  },
+  {
+    "id": "pectoralis-major",
+    "name_zh": "胸大肌",
+    "name_la": "Musculus pectoralis major",
+    "function_zh": "覆蓋上胸前壁的扇形大肌，分鎖骨頭、胸肋頭、腹部頭三部分，止於肱骨大結節嵴。功能：肩關節屈曲（鎖骨頭）、內收、內旋；推、抱、攀爬時把上臂往中線拉（推牆、推門、伏地挺身的主力肌）。由胸內外側神經支配。健身房臥推（bench press）就是練胸大肌。爆發性肌肉撕裂（pectoralis major tear）常見於重量訓練時的離心收縮失誤。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "胸大肌撕裂",
+      "波蘭氏症（先天缺失）",
+      "胸大肌肌腱炎"
+    ]
+  },
+  {
+    "id": "abdominal-muscles",
+    "name_zh": "腹肌群",
+    "name_la": "Musculi abdominis",
+    "function_zh": "前外側腹壁的四層肌肉：腹直肌（rectus abdominis，前方正中，「六塊肌」由腱劃 tendinous intersection 分區）、外腹斜肌、內腹斜肌、腹橫肌（最深層、纖維橫向，是核心穩定的關鍵）。功能：軀幹屈曲、旋轉、側屈，產生腹壓協助排便／分娩／用力呼氣，並穩定腰椎。腹橫肌張力不足是慢性下背痛的常見原因；腹直肌分離（diastasis recti）常見於孕後。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "腹直肌分離",
+      "腹股溝疝氣",
+      "核心無力相關下背痛"
+    ]
+  },
+  {
+    "id": "deltoid",
+    "name_zh": "三角肌",
+    "name_la": "Musculus deltoideus",
+    "function_zh": "覆蓋肩關節的倒三角形大肌，分三部分：前束（鎖骨部，肩屈曲＋內旋）、中束（肩峰部，肩外展的主力，0–90° 範圍）、後束（肩胛棘部，肩伸展＋外旋）。三束協同產生圓滑的肩關節活動。由腋神經支配——肱骨外科頸骨折常傷腋神經，造成三角肌癱瘓 + 肩外側「shoulder badge」區域感覺消失，無法把手抬到水平。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "三角肌癱瘓（腋神經傷）",
+      "肩夾擠症候群",
+      "肌肉注射相關纖維化"
+    ]
+  },
+  {
+    "id": "rotator-cuff",
+    "name_zh": "肩袖肌群（旋轉肌群）",
+    "name_la": "Musculi rotatorum",
+    "function_zh": "四條穩定肩盂肱關節的深層肌：棘上肌（supraspinatus，肩外展起始 0–30°，最易撕裂）、棘下肌（infraspinatus，肩外旋）、小圓肌（teres minor，肩外旋）、肩胛下肌（subscapularis，肩內旋）。它們的肌腱在肩峰下融合形成「肩袖」，把肱骨頭壓入肩盂維持關節穩定。退化性／反覆使用會造成肩袖撕裂（rotator cuff tear），是 50 歲以上肩痛的最常見原因。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "肩袖撕裂",
+      "肩夾擠症候群",
+      "鈣化性肌腱炎"
+    ]
+  },
+  {
+    "id": "biceps-brachii",
+    "name_zh": "肱二頭肌（含肱肌、喙肱肌）",
+    "name_la": "Musculus biceps brachii",
+    "function_zh": "上臂前側的代表肌。肱二頭肌有兩個頭：長頭起自肩盂上結節（穿過肱骨結節間溝），短頭起自喙突；合併後止於橈骨粗隆與前臂筋膜（bicipital aponeurosis）。功能：肘關節屈曲 + 前臂旋後（screwdriver 動作的主力）+ 弱肩屈曲。同層的肱肌（brachialis）是純粹的肘屈肌、出力最強；喙肱肌（coracobrachialis）作肩屈曲與內收。肱二頭長頭肌腱發炎是常見肩前痛原因。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "肱二頭肌長頭肌腱炎",
+      "Popeye sign（長頭斷裂）",
+      "肌皮神經麻痺"
+    ]
+  },
+  {
+    "id": "triceps-brachii",
+    "name_zh": "肱三頭肌",
+    "name_la": "Musculus triceps brachii",
+    "function_zh": "上臂後側的大肌，三個頭：長頭起自肩盂下結節（兼作肩伸展、內收）、外側頭、內側頭都起自肱骨後面；合併止於尺骨鷹嘴突。功能：肘關節伸展的唯一主動肌——伏地挺身、撐手、投擲的「最後出力」靠它。由橈神經支配，橈神經溝骨折（hum­erus spiral fracture）會造成三頭肌癱瘓 + 垂腕。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "橈神經麻痺（垂腕症）",
+      "三頭肌肌腱斷裂",
+      "鷹嘴突滑囊炎"
+    ]
+  },
+  {
+    "id": "forearm-flexors",
+    "name_zh": "前臂屈肌群",
+    "name_la": "Musculi flexores antebrachii",
+    "function_zh": "前臂掌側的肌肉，多由內上髁起源（「common flexor origin」），由正中神經與尺神經支配。淺層：旋前圓肌、橈側屈腕肌、掌長肌、尺側屈腕肌、屈指淺肌。深層：屈指深肌、屈拇長肌、旋前方肌。功能：腕屈、腕外展／內收、握拳（手指屈曲）、前臂旋前。「網球肘」（外上髁炎）相對的「高爾夫球肘」就是這群肌的內上髁肌腱炎；正中神經受壓 → 腕隧道症候群。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "高爾夫球肘（內上髁炎）",
+      "腕隧道症候群",
+      "扳機指"
+    ]
+  },
+  {
+    "id": "forearm-extensors",
+    "name_zh": "前臂伸肌群",
+    "name_la": "Musculi extensores antebrachii",
+    "function_zh": "前臂背側的肌肉，多由外上髁起源（「common extensor origin」），由橈神經支配。包含肱橈肌、橈側伸腕長／短肌、伸指總肌、伸小指肌、尺側伸腕肌、肘後肌、伸食指肌、外展拇長肌、伸拇短／長肌、旋後肌。功能：腕背屈、手指伸展、前臂旋後。「網球肘」（lateral epicondylitis）是反覆腕背屈造成的外上髁肌腱退化；橈神經麻痺會造成垂腕無法主動背屈手腕。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "網球肘（外上髁炎）",
+      "橈神經麻痺",
+      "狹窄性腱鞘炎（媽媽手）"
+    ]
+  },
+  {
+    "id": "trapezius",
+    "name_zh": "斜方肌",
+    "name_la": "Musculus trapezius",
+    "function_zh": "覆蓋上背與後頸的菱形扁平大肌，從枕骨延伸到第 12 胸椎、外止於鎖骨外 1/3 與肩胛棘。分三束：上斜方肌（提肩胛骨，「聳肩」）、中斜方肌（後縮肩胛骨）、下斜方肌（下壓肩胛骨）。三束協調使肩胛骨上旋（手臂舉高過頭必需的動作）。由副神經（CN XI）支配——副神經損傷會造成翼狀肩胛、無法把手舉過水平。長期低頭看手機的「上交叉症候群」就是上斜方肌過緊。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "上背肩頸僵硬",
+      "副神經麻痺（翼狀肩胛）",
+      "斜方肌肌筋膜疼痛症"
+    ]
+  },
+  {
+    "id": "latissimus-dorsi",
+    "name_zh": "背闊肌（含大圓肌）",
+    "name_la": "Musculus latissimus dorsi",
+    "function_zh": "背部最大的扁平肌，從下胸椎、腰椎、薦椎、髂嵴起源，匯聚成肌腱止於肱骨結節間溝。功能：肩關節伸展、內收、內旋——拉單槓、游泳划手、爬山的主力肌（「swimmer's muscle」）。同層的大圓肌（teres major）功能相近，常被合稱「latissimus + teres major」。由胸背神經支配。在背部整形手術中，背闊肌肌皮瓣常被用來重建乳房或大面積組織缺損。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "背闊肌撕裂",
+      "胸背神經麻痺",
+      "上交叉症候群"
+    ]
+  },
+  {
+    "id": "erector-spinae",
+    "name_zh": "豎脊肌群（含深層背肌）",
+    "name_la": "Musculi erectores spinae",
+    "function_zh": "脊柱兩側的縱向肌柱，從薦骨延伸到顱底，分三束（由外往內）：髂肋肌（iliocostalis）、最長肌（longissimus）、棘肌（spinalis）。更深層還有多裂肌、迴旋肌、半棘肌、夾肌、頸部小肌群。功能：保持直立姿勢、伸展脊椎、單側收縮做側彎與旋轉。多裂肌對腰椎節段穩定特別重要——慢性下背痛病人常見多裂肌萎縮。所有功能性核心訓練都包含豎脊肌的離心控制（彎腰提物、硬舉）。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "慢性下背痛",
+      "腰椎扭傷",
+      "脊椎側彎相關肌肉不平衡"
+    ]
+  },
+  {
+    "id": "gluteus-maximus",
+    "name_zh": "臀大肌",
+    "name_la": "Musculus gluteus maximus",
+    "function_zh": "身體體積最大的單一肌肉，覆蓋臀部後方。起自髂骨後外、薦骨、尾骨；纖維斜向下外止於髂脛束（iliotibial tract）與股骨臀肌粗隆。功能：髖伸展（站起、上樓梯、衝刺起跑）、髖外旋、髖外展（上束）。人類能直立行走、長距離跑步，臀大肌的強度是關鍵演化特徵。久坐族常見臀大肌失憶（gluteal amnesia）→ 下背、膝部代償出問題。由臀下神經支配。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "臀大肌無力綜合症",
+      "髖關節後外側疼痛",
+      "髂脛束症候群（間接）"
+    ]
+  },
+  {
+    "id": "hip-stabilizers",
+    "name_zh": "髖外展與深層旋轉肌群",
+    "name_la": "Musculi abductores et rotatores coxae",
+    "function_zh": "包含臀中肌、臀小肌（hip abduction + 走路單腳支撐期防止骨盆下垂的「Trendelenburg 反射」）、闊筋膜張肌（TFL，連接髂脛束）、梨狀肌、上下孖肌、閉孔內／外肌、股方肌（深層的六條髖外旋肌）、髂腰肌（iliopsoas，髖屈曲的最強肌）。臀中肌無力會出現「Trendelenburg gait」（走路骨盆下垂晃動），這是退化性髖關節病與術後常見的代償。梨狀肌過緊壓迫坐骨神經 → 梨狀肌症候群。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "臀中肌肌腱病",
+      "梨狀肌症候群",
+      "髂腰肌肌腱炎"
+    ]
+  },
+  {
+    "id": "quadriceps",
+    "name_zh": "股四頭肌（含縫匠肌）",
+    "name_la": "Musculus quadriceps femoris",
+    "function_zh": "大腿前側的肌群，四個頭：股直肌（rectus femoris，唯一跨髖+膝，能同時屈髖+伸膝）、股外側肌、股內側肌、股中間肌。匯合形成股四頭肌肌腱 → 髕骨 → 髕骨肌腱 → 脛骨粗隆。功能：膝關節伸展的唯一主力——爬樓梯、站起、踢腿都靠它。同層的縫匠肌（sartorius，最長的人體肌肉）做髖屈+外展+外旋+膝屈（「盤腿」姿勢）。由股神經支配，股神經麻痺會造成爬樓梯困難。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "髕骨肌腱炎",
+      "股四頭肌撕裂",
+      "Osgood-Schlatter 病（青少年）"
+    ]
+  },
+  {
+    "id": "hamstrings",
+    "name_zh": "腿後肌群",
+    "name_la": "Musculi hamstring (ischiocrurales)",
+    "function_zh": "大腿後側三條跨關節肌：股二頭肌（biceps femoris，長頭 + 短頭）、半膜肌（semimembranosus）、半腱肌（semitendinosus）。除股二頭短頭外都從坐骨結節起源，止於脛骨/腓骨。功能：髖伸展 + 膝屈曲（衝刺、跳躍、踢腿後拉）。是最容易受傷的肌群之一——田徑短跑「拉傷」絕大多數就是腿後肌離心收縮失誤。由坐骨神經（脛骨支）支配。腿後肌過緊會限制髖屈，導致彎腰摸地測試（toe touch）困難。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "腿後肌拉傷",
+      "腿後肌肌腱病",
+      "坐骨神經痛（腿後緊繃假性）"
+    ]
+  },
+  {
+    "id": "adductors",
+    "name_zh": "大腿內收肌群",
+    "name_la": "Musculi adductores femoris",
+    "function_zh": "大腿內側的肌群，從恥骨／坐骨起源、止於股骨內側：內收長肌、內收短肌、內收大肌、內收小肌、股薄肌（gracilis，最表淺，跨膝）、恥骨肌（pectineus）、閉孔外肌。功能：髖內收（把腳往中線靠攏）、髖屈曲輔助、膝內旋。騎馬、足球內側踢、滑冰煞車都靠這群。「鼠蹊部拉傷」（groin strain）多數是內收長肌；恥骨炎（osteitis pubis）也與這群肌腱反覆牽拉相關。由閉孔神經支配。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "鼠蹊部拉傷",
+      "恥骨炎",
+      "閉孔神經夾擠"
+    ]
+  },
+  {
+    "id": "calf-muscles",
+    "name_zh": "小腿後肌（含腓腸肌、比目魚肌）",
+    "name_la": "Musculi cruris posteriores",
+    "function_zh": "後小腿淺層：腓腸肌（gastrocnemius，內外兩頭，跨膝 + 踝關節，跑跳爆發力）、比目魚肌（soleus，深層、富含慢縮纖維，站立耐力）、蹠肌（plantaris）。合併形成跟腱（Achilles tendon）止於跟骨。深層：脛後肌、屈趾長肌、屈拇長肌（穩定足內側縱弓 + 屈趾 + 內翻）、膕肌（解鎖膝關節）。功能：踝蹠屈（提踵、推地）、屈趾。跟腱是體內最強肌腱，但運動員突然爆發收縮易斷裂——「鞭打」感 + 無法用腳尖站立是典型表徵。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "跟腱斷裂",
+      "脛後肌腱功能不全（扁平足）",
+      "小腿肌肉拉傷"
+    ]
+  },
+  {
+    "id": "tibialis-anterior-group",
+    "name_zh": "脛前肌與小腿外側肌群",
+    "name_la": "Musculi cruris anteriores et laterales",
+    "function_zh": "前小腿（深腓神經支配）：脛前肌（tibialis anterior，背屈 + 內翻，走路時把腳尖抬起避免拖地）、伸趾長肌、伸拇長肌、第三腓骨肌。外側小腿（淺腓神經支配）：腓骨長肌、腓骨短肌（足底外翻 + 蹠屈穩定）。功能整體：踝背屈 + 足外翻。脛前肌無力（腓神經麻痺）造成「垂足」（foot drop，走路必須抬高大腿）。長跑後脛前肌過用 → 脛骨內側壓力綜合症（shin splints）。",
+    "system": "muscle",
+    "meshName": null,
+    "diseases_zh": [
+      "垂足（腓神經麻痺）",
+      "脛骨內側壓力綜合症",
+      "前室症候群"
+    ]
   }
 ]

@@ -12,11 +12,13 @@ const VEIN_COLOR    = 0x4aa6ff;
 const ARTERY_GLOW   = 0xff8a8a;
 const VEIN_GLOW     = 0x8fc6ff;
 
-const SPEED         = 0.30;       // 每秒走過的 t 比例 (0..1)
+const SPEED         = 0.25;       // 每秒走過的 t 比例 (0..1)
 const DOT_RADIUS    = 0.020;
 const DOT_LENGTH    = 0.060;
 
-const CURVE_SAMPLES = 18;         // 每條血管採樣點數
+const CURVE_SAMPLES = 32;         // 每條血管採樣點數（多 → 曲線更穩，不會反向跳）
+const FADE_EDGE     = 0.08;       // t 進入 [0, FADE]/[1-FADE, 1] 區間時 opacity 漸隱
+const DOTS_PER_VESSEL = 2;        // 每條血管 2 個光點、相位差 0.5 → 永遠至少一個亮著
 
 const Y_AXIS = new THREE.Vector3(0, 1, 0);
 const TMP_V  = new THREE.Vector3();
@@ -135,22 +137,27 @@ export class BloodFlowController {
         );
       }
 
-      // 建一個 dot
-      const dotMat = new THREE.MeshBasicMaterial({
-        color: cat === 'artery' ? ARTERY_GLOW : VEIN_GLOW,
-        transparent: true,
-        opacity: 0.95,
-        depthTest: false,
-        depthWrite: false,
-        toneMapped: false,
-      });
-      const dot = new THREE.Mesh(geo, dotMat);
-      dot.userData.isOverlay = true;
-      dot.renderOrder = 999;
-      this.dotGroup.add(dot);
+      // 每條血管 N 個光點，相位差均勻分布在 0~1 → 永遠至少一個光點在中段、
+      //   wrap-around 不會視覺斷層
+      const dots = [];
+      for (let k = 0; k < DOTS_PER_VESSEL; k++) {
+        const dotMat = new THREE.MeshBasicMaterial({
+          color: cat === 'artery' ? ARTERY_GLOW : VEIN_GLOW,
+          transparent: true,
+          opacity: 0,   // update 時依 t 邊界算 fade
+          depthTest: false,
+          depthWrite: false,
+          toneMapped: false,
+        });
+        const dot = new THREE.Mesh(geo, dotMat);
+        dot.userData.isOverlay = true;
+        dot.renderOrder = 999;
+        this.dotGroup.add(dot);
+        dots.push(dot);
+      }
 
-      // 隨機初始 t → 各血管不同步，看起來像持續流動而非整齊
-      const item = { curve, dot, t: Math.random() };
+      // 隨機 base offset → 各血管不同步；個別 dot phase = base + k/N
+      const item = { curve, dots, baseT: Math.random() };
       if (cat === 'artery') this.arteries.push(item);
       else                  this.veins.push(item);
     });
@@ -163,12 +170,20 @@ export class BloodFlowController {
     const advance = dt * this.speed;
     for (const arr of [this.arteries, this.veins]) {
       for (const v of arr) {
-        v.t = (v.t + advance) % 1.0;
-        const p = v.curve.getPointAt(v.t);
-        const tan = v.curve.getTangentAt(v.t);
-        v.dot.position.copy(p);
-        TMP_Q.setFromUnitVectors(Y_AXIS, tan);
-        v.dot.quaternion.copy(TMP_Q);
+        v.baseT = (v.baseT + advance) % 1.0;
+        for (let k = 0; k < v.dots.length; k++) {
+          const t = (v.baseT + k / v.dots.length) % 1.0;
+          const p = v.curve.getPointAt(t);
+          const tan = v.curve.getTangentAt(t);
+          const dot = v.dots[k];
+          dot.position.copy(p);
+          TMP_Q.setFromUnitVectors(Y_AXIS, tan);
+          dot.quaternion.copy(TMP_Q);
+          // Fade 邊界：t 接近 0 或 1 時 opacity → 0，掩蓋 wrap-around 跳躍
+          const fadeIn  = Math.min(1, t / FADE_EDGE);
+          const fadeOut = Math.min(1, (1 - t) / FADE_EDGE);
+          dot.material.opacity = Math.min(fadeIn, fadeOut) * 0.95;
+        }
       }
     }
   }

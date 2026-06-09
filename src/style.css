@@ -433,6 +433,7 @@ html, body, #app {
 .system-cranial-nerve { background: rgba(160,232,160,0.14); color: #b9eebd; border-color: rgba(160,232,160,0.45); }
 .system-stimulus   { background: rgba(255,90,90,0.14);   color: #ff9c9c; border-color: rgba(255,90,90,0.40); }
 .system-organ      { background: rgba(255,138,168,0.14); color: #ffb1c4; border-color: rgba(255,138,168,0.40); }
+.system-muscle     { background: rgba(193,74,64,0.14);   color: #ee9590; border-color: rgba(193,74,64,0.40); }
 .placeholder-tag {
   color: #f0b86e;
   background: rgba(240,184,110,0.10);

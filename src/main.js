@@ -12,6 +12,7 @@ import { buildToolsPanel } from './toolsPanel.js';
 import { structuresList, SYSTEM_COLORS } from './structures.js';
 import { colorizeBrain } from './colorize.js';
 import { tagBrainMeshes } from './structureMeshMap.js';
+import { tagAndColorMuscles } from './muscleGroups.js';
 import { createMarkers, updateMarkerVisuals } from './markers.js';
 import { SelectionController } from './selection.js';
 import { buildInfoPanel, buildTooltip } from './infoPanel.js';
@@ -210,7 +211,21 @@ async function loadAnatomy() {
     // 周邊神經網絡（脊神經，含交感+體感）— 在 nerve layer
     await loadAlignedLayer(REAL_NERVES_URL,  'nerve',  { scaleFactor, center, color: 0xf8d758, opacity: 0.95 });
     // 交感神經幹（autonomic chain，沿脊髓兩側）— 獨立 sympathetic layer，預設隱藏
-    await loadAlignedLayer(REAL_SYMP_URL,    'sympathetic', { scaleFactor, center, color: 0xa6e7ff, opacity: 1 });
+    const sympGroup = await loadAlignedLayer(REAL_SYMP_URL,    'sympathetic', { scaleFactor, center, color: 0xa6e7ff, opacity: 1 });
+    // 交感神經很細（curve bake 出來的細管），跟周邊神經幾乎在同一空間，預設會被
+    // 周邊神經遮住。設 depthTest=false + 高 renderOrder 讓它永遠浮在最上層
+    if (sympGroup) {
+      sympGroup.traverse(o => {
+        if (!o.isMesh || !o.material) return;
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of mats) {
+          m.depthTest = false;
+          m.depthWrite = false;
+          m.needsUpdate = true;
+        }
+        o.renderOrder = 990;
+      });
+    }
     // 12 對腦神經（含視神經、迷走神經…）— 在 nerve layer
     const cnGroup = await loadAlignedLayer(REAL_CN_URL,  'nerve', { scaleFactor, center, color: 0xa0e8a0, opacity: 1 });
     // 對腦神經 mesh 做 structureId tag（依名稱關鍵字），讓點選能跳對應資訊面板
@@ -259,9 +274,16 @@ async function loadAnatomy() {
       });
     }
     await loadAlignedLayer(REAL_MUSCLES_URL, 'muscle', { scaleFactor, center, color: 0xc14a40, opacity: 0.95 });
+    // 肌肉群分類：依名稱關鍵字 tag structureId + 套用群組色（胸大肌、肱二頭、
+    // 股四頭…各自一色），讓不同肌肉一眼可分辨且可點選 → 跳資訊面板
+    const muscleGroup = layerManager.getGroup('muscle');
+    const muscleStats = tagAndColorMuscles(muscleGroup);
+    console.info('[edu-platform] muscle groups tagged:', JSON.stringify(muscleStats.perGroup),
+      'matched=', muscleStats.matched, 'unmatched=', muscleStats.unmatched,
+      'sampleUnmatched=', JSON.stringify(muscleStats.sampleUnmatched));
     // 程序化肌肉纖維 bump map：讓肌肉表面有方向性紋路（垂直細線 + 雜訊）
     const muscleBumpTex = createMuscleBumpMap();
-    layerManager.getGroup('muscle').traverse(o => {
+    muscleGroup.traverse(o => {
       if (!o.isMesh || !o.material) return;
       const mats = Array.isArray(o.material) ? o.material : [o.material];
       for (const m of mats) {
@@ -400,7 +422,12 @@ async function loadAnatomy() {
   }
 
   // Explode
-  const brainCenter = clipBbox.getCenter(new THREE.Vector3());
+  // 爆炸視圖中心：用「腦自己的 bbox」，不要用整體 anatomy bbox（會被身體往下拉
+  // 到 y≈-3，導致所有腦區的爆炸方向都指向上方 → 看起來像整顆腦平移，而不是
+  // 各區向外擴散）
+  const brainCenter = window.__brainBbox
+    ? window.__brainBbox.getCenter(new THREE.Vector3())
+    : clipBbox.getCenter(new THREE.Vector3());
   explodeCtrl = new ExplodeController({ root: modelRoot, brainCenter });
   explodeCtrl.build();
 
@@ -560,10 +587,13 @@ async function loadAnatomy() {
   // 紅色光點動脈往外流、藍色光點靜脈回心臟；dot group 加在 scene root，
   // 預設隱藏；toggle 後才出現
   if (real) {
-    const heartWorld = markerMap.get('heart')?.position ?? new THREE.Vector3();
+    const heartMesh = markerMap.get('heart');
+    const heartWorld = new THREE.Vector3();
+    if (heartMesh) heartMesh.getWorldPosition(heartWorld);
     bloodFlow = new BloodFlowController({ heartPos: heartWorld });
     const stats = bloodFlow.registerVesselGroup(layerManager.getGroup('vessel'), scene);
-    console.info('[edu-platform] blood flow targets:', JSON.stringify(stats));
+    console.info('[edu-platform] blood flow targets:',
+      JSON.stringify(stats), 'heart world=', heartWorld.toArray().map(v => +v.toFixed(2)));
   }
 
   // 「啟動血流」按鈕（topbar 內）
@@ -586,11 +616,13 @@ async function loadAnatomy() {
   }
 
   // ── 效能優化：合併不可點擊的靜態圖層 → 大幅減少 draw call ──
-  //   skin/muscle/bone 沒有 per-mesh structureId，可安全合併。
+  //   skin/bone 沒有 per-mesh structureId，可安全合併。
+  //   muscle 不合併：每個肌肉 mesh 都被 tag 成肌肉群 structureId，需要 per-mesh
+  //     可點選 + per-group 著色（見 MUSCLE_GROUP_COLORS）。
   //   vessel 不合併：BloodFlowController 需要 per-mesh emissive pulse 跟方向箭頭
   //   brain/cranial-nerves/sympathetic/viscera/nerves 保留 per-mesh 以維持點選/高亮。
   let mergeReport = {};
-  for (const layerId of ['skin', 'muscle', 'bone']) {
+  for (const layerId of ['skin', 'bone']) {
     const g = layerManager.getGroup(layerId);
     const before = countMeshes(g);
     const n = mergeStaticLayer(g, { name: layerId });
@@ -599,7 +631,7 @@ async function loadAnatomy() {
     if (n > 0) freezeStaticLayer(g);
   }
   // 重新註冊合併後 mesh 的原始 opacity，讓 LayerManager 後續 setState 能對它生效
-  for (const layerId of ['skin', 'muscle', 'bone']) {
+  for (const layerId of ['skin', 'bone']) {
     const g = layerManager.getGroup(layerId);
     g.traverse(child => {
       if (!child.isMesh) return;
