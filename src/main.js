@@ -20,7 +20,7 @@ import { PathwayPlayer } from './pathwayPlayer.js';
 import { ClippingController } from './clipping.js';
 import { createOrientationEyes } from './orientationCue.js';
 import { createSkinTexture, findOrbitalCenters } from './skinTexture.js';
-import { createMuscleBumpMap } from './muscleTexture.js';
+import { createMuscleBumpMap, applyMuscleFiberShader } from './muscleTexture.js';
 import { NervePulseController } from './nervePulse.js';
 import { ExplodeController } from './explode.js';
 import { buildViewPanel } from './viewPanel.js';
@@ -281,15 +281,26 @@ async function loadAnatomy() {
     console.info('[edu-platform] muscle groups tagged:', JSON.stringify(muscleStats.perGroup),
       'matched=', muscleStats.matched, 'unmatched=', muscleStats.unmatched,
       'sampleUnmatched=', JSON.stringify(muscleStats.sampleUnmatched));
-    // 程序化肌肉纖維 bump map：讓肌肉表面有方向性紋路（垂直細線 + 雜訊）
+    // 肌肉纖維：muscles.glb 大部分 mesh 沒有 UV（只有 100/918 帶 UV），所以
+    // 改用 onBeforeCompile 注入程序化 shader：用 world position + normal 算三平面
+    // 條紋場 + 高頻雜訊 → 不依賴 UV，每塊肌肉都看得到纖維走向。bumpMap 作為
+    // 帶 UV mesh 的雙保險，保留但 bumpScale 增強。
     const muscleBumpTex = createMuscleBumpMap();
     muscleGroup.traverse(o => {
       if (!o.isMesh || !o.material) return;
       const mats = Array.isArray(o.material) ? o.material : [o.material];
       for (const m of mats) {
-        m.bumpMap = muscleBumpTex;
-        m.bumpScale = 0.020;
-        m.roughness = 0.72;
+        if (o.geometry?.attributes?.uv) {
+          m.bumpMap = muscleBumpTex;
+          m.bumpScale = 0.055;
+        }
+        m.roughness = 0.78;
+        applyMuscleFiberShader(m, {
+          fiberFreq: 80.0,        // 條紋密度
+          microFreq: 220.0,       // 微觀雜訊頻率
+          contrast: 0.24,         // 亮度調制幅度
+          normalStrength: 0.08,   // 法向擾動強度
+        });
         m.needsUpdate = true;
       }
     });
